@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: HMS Testimonials
-Plugin URI: http://hitmyserver.com/lp/hms-testimonials/
+Plugin URI: http://hitmyserver.com
 Description: Displays your customer testimonials.
-Version: 1.1
+Version: 1.2
 Author: HitMyServer LLC
 Author URI: http://hitmyserver.com
 */

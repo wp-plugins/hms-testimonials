@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: kreitje
 Donate link: http://hitmyserver.com/
-Tags: testimonials, client reviews, rotating testimonials
+Tags: testimonials, client reviews
 Requires at least: 3.0.1
-Tested up to: 3.5.1
+Tested up to: 3.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -58,6 +58,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 1.2 =
+* Fixed the slashes being added in front of quotes and apostrophes in your testimonials.
 
 = 1.1 =
 * Plugin is released to WordPress

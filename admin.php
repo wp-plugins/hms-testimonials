@@ -2,6 +2,9 @@
 
 
 function hms_testimonials_menu() {
+	global $menu, $submenu;
+
+	
 	add_menu_page('HMS Testimonials', 'Testimonials', 'administrator', 'hms-testimonials', 'hms_testimonials_admin');
 	add_submenu_page('hms-testimonials', 'Add New Testimonial', '&nbsp;&nbsp;Add New', 'administrator', 'hms-testimonials-addnew', 'hms_testimonials_admin_new');
 	add_submenu_page('hms-testimonials', 'Groups', 'Groups', 'administrator', 'hms-testimonials-groups', 'hms_testimonials_admin_groups');
@@ -10,7 +13,7 @@ function hms_testimonials_menu() {
 	add_submenu_page(null, 'Add New Group', '&nbsp;&nbsp;Add New', 'administrator', 'hms-testimonials-addnewgroup', 'hms_testimonials_admin_newgroup');
 	add_submenu_page(null, 'Ajax Save', 'Ajax Save', 'administrator', 'hms-testimonials-sortsave', 'hms_testimonials_admin_sortsave');
 	add_submenu_page(null, 'View Group', 'View Group', 'administrator', 'hms-testimonials-viewgroup', 'hms_testimonials_admin_viewgroup');
-	add_submenu_page(null, 'View Group', 'View Group', 'administrator', 'hms-testimonials-view', 'hms_testimonials_admin_view');
+	add_submenu_page(null, 'View Testimonial', 'View Testimonial', 'administrator', 'hms-testimonials-view', 'hms_testimonials_admin_view');
 
 	add_submenu_page(null, 'Delete Testimonial', 'Delete Testimonial', 'administrator', 'hms-testimonials-delete', 'hms_testimonials_admin_delete');
 	add_submenu_page(null, 'Delete Testimonial From Group', 'Delete Testimonial From Group', 'administrator', 'hms-testimonials-deletefg', 'hms_testimonials_admin_deletefg');
@@ -133,12 +136,12 @@ function hms_testimonials_admin_new() {
 		}
 
 
-
 		$display = 0;
 		if (isset($_POST['display']) && ($_POST['display']=='1'))
 			$display = 1;
 
 		if (count($errors)<1) {
+			$_POST = stripslashes_deep($_POST);
 
 			$wpdb->insert($wpdb->prefix."hms_testimonials", 
 				array(
@@ -158,6 +161,8 @@ function hms_testimonials_admin_new() {
 			$added = 1;
 			unset($_POST);
 		}
+	} else {
+		$display = 1;
 	}
 
 	?>
@@ -201,7 +206,7 @@ function hms_testimonials_admin_new() {
 					<div class="stuffbox">
 						<h3><label for="testimonial">Testimonial:</label></h3>
 						<div class="inside">
-							<textarea id="testimonial" name="testimonial" style="width:99%;" rows="10"><?php echo $_POST['testimonial']; ?></textarea>
+							<textarea id="testimonial" name="testimonial" style="width:99%;" rows="10"><?php echo @$_POST['testimonial']; ?></textarea>
 							<br /><br />
 							<strong>HTML is allowed.</strong>
 						</div>
@@ -226,7 +231,7 @@ function hms_testimonials_admin_new() {
 					<div class="postbox">
 						<h3>Save</h3>
 						<br />
-						&nbsp;&nbsp;&nbsp; <input id="display" type="checkbox" name="display" value="1"<?php if (isset($_POST['display'])&&($_POST['display']=='1')) echo ' checked="checked"'; ?> /> &nbsp;&nbsp;<label for="display">Display?</label><br /><br />
+						&nbsp;&nbsp;&nbsp; <input id="display" type="checkbox" name="display" value="1"<?php if ((isset($_POST['display'])&&($_POST['display']=='1') || $display == 1)) echo ' checked="checked"'; ?> /> &nbsp;&nbsp;<label for="display">Display?</label><br /><br />
 						&nbsp;&nbsp;&nbsp; <input type="submit" name="save" value="Save Testimonial" class="button-primary" /> <br />
 						&nbsp;
 						<br />
@@ -284,6 +289,7 @@ function hms_testimonials_admin_view() {
 			$display = 1;
 
 		if (count($errors)<1) {
+			$_POST = stripslashes_deep($_POST);
 
 			$wpdb->update($wpdb->prefix."hms_testimonials", 
 				array(
@@ -585,6 +591,7 @@ function hms_testimonials_admin_newgroup() {
 	global $wpdb, $blog_id;
 
 	if (isset($_POST) && (isset($_POST['name'])) && (trim(strip_tags($_POST['name']))!='')) {
+		$_POST = stripslashes_deep($_POST);
 		$_POST['name'] = str_replace('"', '', $_POST['name']);
 		$_POST['name'] = str_replace("'", '', $_POST['name']);
 		$wpdb->insert($wpdb->prefix."hms_testimonials_groups", array('blog_id' => $blog_id, 'name' => trim(strip_tags($_POST['name'])), 'created_at' => date('Y-m-d h:i:s')));

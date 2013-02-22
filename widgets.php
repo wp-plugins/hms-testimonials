@@ -57,6 +57,8 @@ class HMS_Testimonials_View extends WP_Widget {
 
 	public function widget($args, $instance) {
 		global $wpdb, $blog_id;
+		$settings = get_option('hms_testimonials');
+
 		if (!isset($instance['show']))
 			$instance['show'] = 'all';
 		if (!isset($instance['show_value']))
@@ -91,16 +93,39 @@ class HMS_Testimonials_View extends WP_Widget {
 				echo $args['before_title'].$instance['title'].$args['after_title'];
 
 		if ($single==1) {
-			echo nl2br($get['testimonial']).'<br />'.nl2br($get['name']);
-			if ($get['url']!='') echo '<br />'.$get['url'];
+			echo '<div class="hms-testimonial-container">
+				<div class="testimonial">'.nl2br($get['testimonial']).'</div><div class="author">'.nl2br($get['name']).'</div>';
 
-			echo '<br /><br />';
+			if ($get['url'] != '') {
+				if (substr($get['url'],0,4)!='http')
+					$href = 'http://'.$get['url'];
+				else
+					$href = $get['url'];
+
+
+				if ($settings['show_active_links'] == 1) {
+					$nofollow = '';
+
+					if ($settings['active_links_nofollow'] == 1)
+						$nofollow = 'rel="nofollow"';
+
+					echo '<div class="url"><a '.$nofollow.' href="'.$href.'" target="_blank">'.$href.'</a></div>';
+				} else {
+					echo '<div class="url">'.$href.'</div>';
+				}
+
+			}
+
+			echo '</div>';
 		} else {
+			$x = 1;
 			foreach($get as $g) {
-				echo nl2br($g['testimonial']).'<br />'.nl2br($g['name']);
-				if ($g['url']!='') echo '<br />'.$g['url'];
 
-				echo '<br /><br />';
+				echo '<div class="hms-testimonial-container hms-testimonial-counter-'.$x.'">
+				 <div class="testimonial">'.nl2br($g['testimonial']).'</div><div class="author">'.nl2br($g['name']).'</div>';
+				if ($g['url']!='') echo '<div class="url">'.$g['url'].'</div>';
+				echo '</div>';
+				$x++;
 			}
 		}
 		echo $args['after_widget'];
@@ -121,6 +146,11 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 		$title = (isset($instance[ 'title' ])) ? $instance[ 'title' ] : __( 'Testimonials');
 		$group = (isset($instance[ 'group' ])) ? $instance[ 'group' ] : 0;
 		$seconds = (isset($instance[ 'seconds' ])) ? $instance[ 'seconds' ] : 10;
+		$show_links = (isset($instance[ 'show_links' ]) && $instance['show_links'] == 1) ? 1 : 0;
+		$link_next = (isset($instance['link_next'])) ? $instance['link_next'] : '';
+		$link_prev = (isset($instance['link_prev'])) ? $instance['link_prev'] : '';
+		$link_pause = (isset($instance['link_pause'])) ? $instance['link_pause'] : '';
+		$link_play = (isset($instance['link_play'])) ? $instance['link_play'] : '';
 
 		
 		?>
@@ -144,6 +174,27 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'seconds' ); ?>"><?php _e( 'Seconds Between:' ); ?></label> 
 			<input class="widefat" id="<?php echo $this->get_field_id( 'seconds' ); ?>" name="<?php echo $this->get_field_name( 'seconds' ); ?>" type="text" value="<?php echo esc_attr( $seconds ); ?>" style="width:25px;" />
 		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('show_links'); ?>"><?php _e( 'Show Links:' ); ?></label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_links' ); ?>" name="<?php echo $this->get_field_name( 'show_links' ); ?>" value="1" <?php if ($show_links == 1) echo ' checked="checked"'; ?> />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'link_next' ); ?>"><?php _e( 'Next Text:' ); ?></label> 
+			<input class="widefat" id="<?php echo $this->get_field_id( 'link_next' ); ?>" name="<?php echo $this->get_field_name( 'link_next' ); ?>" type="text" value="<?php echo esc_attr( $link_next ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'link_prev' ); ?>"><?php _e( 'Previous Text:' ); ?></label> 
+			<input class="widefat" id="<?php echo $this->get_field_id( 'link_prev' ); ?>" name="<?php echo $this->get_field_name( 'link_prev' ); ?>" type="text" value="<?php echo esc_attr( $link_prev ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'link_play' ); ?>"><?php _e( 'Play Text:' ); ?></label> 
+			<input class="widefat" id="<?php echo $this->get_field_id( 'link_play' ); ?>" name="<?php echo $this->get_field_name( 'link_play' ); ?>" type="text" value="<?php echo esc_attr( $link_play ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'link_pause' ); ?>"><?php _e( 'Pause Text:' ); ?></label> 
+			<input class="widefat" id="<?php echo $this->get_field_id( 'link_pause' ); ?>" name="<?php echo $this->get_field_name( 'link_pause' ); ?>" type="text" value="<?php echo esc_attr( $link_pause ); ?>" />
+		</p>
 		
 		
 		<?php 
@@ -154,12 +205,19 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 		$instance['title'] = strip_tags($new_instance['title']);
 		$instance['group'] = (int)$new_instance['group'];
 		$instance['seconds'] = (int)$new_instance['seconds'];
+		$instance['show_links'] = (int)$new_instance['show_links'];
+
+		$instance['link_next'] = $new_instance['link_next'];
+		$instance['link_prev'] = $new_instance['link_prev'];
+		$instance['link_pause'] = $new_instance['link_pause'];
+		$instance['link_play'] = $new_instance['link_play'];
 		
 		return $instance;
 	}
 
 	public function widget($args, $instance) {
 		global $wpdb, $blog_id;
+		$settings = get_option('hms_testimonials');
 
 		if (!isset($instance['group']))
 			$instance['group'] = 0;
@@ -175,40 +233,153 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 
 		$identifier = $this->_randomstring();
 
+
+
 		echo $args['before_widget'];
 		if (!empty($instance['title']))
 			echo $args['before_title'].$instance['title'].$args['after_title'];
 
 		echo '<div id="hms-testimonial-'.$identifier.'">';
 
-			echo nl2br($get[0]['testimonial']).'<br />'.nl2br($get[0]['name']);
-			if ($get[0]['url']!='') echo '<br />'.$get[0]['url'];
+			echo '<div class="hms-testimonial-container">
+				<div class="testimonial">'.nl2br($get[0]['testimonial']).'</div><div class="author">'.nl2br($get[0]['name']).'</div>';
 
+			if ($get[0]['url'] != '') {
+				if (substr($get[0]['url'],0,4)!='http')
+					$href = 'http://'.$get[0]['url'];
+				else
+					$href = $get[0]['url'];
+
+
+				if ($settings['show_active_links'] == 1) {
+					$nofollow = '';
+
+					if ($settings['active_links_nofollow'] == 1)
+						$nofollow = 'rel="nofollow"';
+
+					echo '<div class="url"><a '.$nofollow.' href="'.$href.'" target="_blank">'.$href.'</a></div>';
+				} else {
+					echo '<div class="url">'.$href.'</div>';
+				}
+
+			}
+			
+			echo '</div>';
+
+			if ($instance['show_links'] == 1)
+				echo '<div class="controls"><a href="#" class="prev">'.$instance['link_prev'].'</a> <a href="#" class="playpause pause">'.$instance['link_pause'].'</a> <a href="#" class="next">'.$instance['link_next'].'</a></div>';
 		echo '</div>';
 		?>
 
 		<div style="display:none;" id="hms-testimonial-list-<?php echo $identifier; ?>">
+
 			<?php
 				foreach($get as $g) {
-					echo '<span>'.nl2br($g['testimonial']).'<br />'.nl2br($g['name']);
-					if ($g['url']!='') echo '<br />'.$g['url'];
-					echo '</span>';
+					echo '<div class="hms-testimonial-container">
+							<div class="testimonial">'.nl2br($g['testimonial']).'</div>
+							<div class="author">'.nl2br($g['name']).'</div>';
+					
+					if ($g['url'] != '') {
+						if (substr($g['url'],0,4)!='http')
+							$href = 'http://'.$g['url'];
+						else
+							$href = $g['url'];
+
+
+						if ($settings['show_active_links'] == 1) {
+							$nofollow = '';
+
+							if ($settings['active_links_nofollow'] == 1)
+								$nofollow = 'rel="nofollow"';
+
+							echo '<div class="url"><a '.$nofollow.' href="'.$href.'" target="_blank">'.$href.'</a></div>';
+						} else {
+							echo '<div class="url">'.$href.'</div>';
+						}
+
+					}
+
+					echo '</div>';
 				} ?>
 		</div>
 
 		<script type="text/javascript">
 			var index_<?php echo $identifier; ?> = 1;
+			var timeout_<?php echo $identifier; ?> = null;
+			var play_<?php echo $identifier; ?> = 1;
+
 			jQuery(document).ready(function() {
-				setInterval(function() {
-					var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> span").get(index_<?php echo $identifier; ?>);
+
+				si_<?php echo $identifier; ?>();
+
+				jQuery("#hms-testimonial-<?php echo $identifier; ?> .controls .pause").click(function() {
+					if (play_<?php echo $identifier; ?> == 1) {
+						jQuery(this).text('<?php echo $instance['link_play']; ?>').removeClass('pause').addClass('play');
+						clearInterval(timeout_<?php echo $identifier; ?>);
+						play_<?php echo $identifier; ?> = 0;
+					} else {
+						jQuery(this).text('<?php echo $instance['link_pause']; ?>').removeClass('play').addClass('pause');
+						si_<?php echo $identifier; ?>();
+						play_<?php echo $identifier; ?> = 1;
+					}
+
+					return false;
+				});
+
+				jQuery("#hms-testimonial-<?php echo $identifier; ?> .controls .prev").click(function() {
+
+					var new_index = (index_<?php echo $identifier; ?> - 2);
+					
+					if (new_index < 0) {
+						new_index = (jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").length - 1);
+					}
+					
+
+					var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(new_index);
 					if (nextitem == undefined) {
 						index_<?php echo $identifier; ?> = 0;
-						var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> span").get(0);
+						var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(0);
 					}
-					jQuery("#hms-testimonial-<?php echo $identifier; ?>").fadeOut('slow', function(){ jQuery(this).html(nextitem.innerHTML)}).fadeIn();
+					jQuery("#hms-testimonial-<?php echo $identifier; ?> .hms-testimonial-container").fadeOut('slow', function(){ jQuery(this).html(nextitem.innerHTML)}).fadeIn();
+					index_<?php echo $identifier; ?> = new_index + 1;
+
+					if (play_<?php echo $identifier; ?> == 1) {
+						clearInterval(timeout_<?php echo $identifier; ?>);
+						si_<?php echo $identifier; ?>();
+					}
+					return false;
+
+				});
+				jQuery("#hms-testimonial-<?php echo $identifier; ?> .controls .next").click(function() {
+					var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(index_<?php echo $identifier; ?>);
+					if (nextitem == undefined) {
+						index_<?php echo $identifier; ?> = 0;
+						var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(0);
+					}
+					jQuery("#hms-testimonial-<?php echo $identifier; ?> .hms-testimonial-container").fadeOut('slow', function(){ jQuery(this).html(nextitem.innerHTML)}).fadeIn();
+					index_<?php echo $identifier; ?> = index_<?php echo $identifier; ?> + 1;
+
+					if (play_<?php echo $identifier; ?> == 1) {
+						clearInterval(timeout_<?php echo $identifier; ?>);
+						si_<?php echo $identifier; ?>();
+					}
+					return false;
+				});
+				
+			});
+
+			function si_<?php echo $identifier; ?>() {
+
+				timeout_<?php echo $identifier; ?> = setInterval(function() {
+					var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(index_<?php echo $identifier; ?>);
+					if (nextitem == undefined) {
+						index_<?php echo $identifier; ?> = 0;
+						var nextitem = jQuery("#hms-testimonial-list-<?php echo $identifier; ?> .hms-testimonial-container").get(0);
+					}
+					jQuery("#hms-testimonial-<?php echo $identifier; ?> .hms-testimonial-container").fadeOut('slow', function(){ jQuery(this).html(nextitem.innerHTML)}).fadeIn();
 					index_<?php echo $identifier; ?> = index_<?php echo $identifier; ?> + 1;
 				}, <?php echo $instance['seconds']; ?>000);
-			});
+			}
 			
 		</script>
 		<?php

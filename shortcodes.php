@@ -146,7 +146,7 @@ function hms_testimonials_show( $atts ) {
 
 		$ret = '<div class="hms-testimonial-container hms-testimonial-single">';
 
-		$testimonial = '<div class="testimonial">'.$get['testimonial'].'</div>';
+		$testimonial = '<div class="testimonial">'.nl2br($get['testimonial']).'</div>';
 		$author = '<div class="author">'.nl2br($get['name']).'</div>';
 		$url = '';
 		if ($get['url'] != '') {
@@ -193,7 +193,7 @@ function hms_testimonials_show( $atts ) {
 
 			$ret .= '<div class="hms-testimonial-container">';
 
-			$testimonial = '<div class="testimonial">'.$g['testimonial'].'</div>';
+			$testimonial = '<div class="testimonial">'.nl2br($g['testimonial']).'</div>';
 			$author = '<div class="author">'.nl2br($g['name']).'</div>';
 
 			$url = '';

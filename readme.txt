@@ -69,6 +69,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 1.6.2 =
+* Fixed bug where new line breaks were not being added in some instances.
+
 = 1.6.1 =
 * Added a template attribute to the shortcodes and widgets to specify the order of the testimonial, author and url.
 * Updated documentation to reflect the new template attribute.

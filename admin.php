@@ -41,6 +41,9 @@ class HMS_Testimonials {
 		if (!isset($this->options['moderator']))
 			$this->options['moderator'] = 'administrator';
 
+		if (!isset($this->options['moderators_can_access_settings']))
+			$this->options['moderators_can_access_settings'] = 0;
+
 		if (!isset($this->options['num_users_can_create']))
 			$this->options['num_users_can_create'] = 1;
 
@@ -51,6 +54,15 @@ class HMS_Testimonials {
 
 		if (isset($this->options['roleorders'][$this->user_role]))
 			$this->user_role_num = $this->options['roleorders'][$this->user_role];
+
+		if (!isset($this->options['use_recaptcha']))
+			$this->options['use_recaptcha'] = 0;
+
+		if (!isset($this->options['recaptcha_privatekey']))
+			$this->options['recaptcha_privatekey'] = '';
+
+		if (!isset($this->options['recaptcha_publickey']))
+			$this->options['recaptcha_publickey'] = '';
 
 		foreach($this->roles as $i => $v) {
 			if (!isset($this->options['roleorders'][$i]))
@@ -77,20 +89,28 @@ class HMS_Testimonials {
 			add_submenu_page(null, 'View Testimonial', 'View Testimonial', $this->user_role, 'hms-testimonials-view', array($this, 'testimonial_view_page'));
 		}
 
+		$settings_role = 'administrator';
+
 		if ($this->is_moderator()) {
 			add_submenu_page('hms-testimonials', 'Groups', 'Groups', $this->user_role, 'hms-testimonials-groups', array($this, 'groups_page'));
-			add_submenu_page('hms-testimonials', 'Settings', 'Settings', $this->user_role, 'hms-testimonials-settings', array($this, 'settings_page'));
 			add_submenu_page('hms-testimonials', 'Documentation', 'Documentation', $this->user_role, 'hms-testimonials-help', array($this, 'help_page'));
 
 			add_submenu_page(null, 'Add New Group', '&nbsp;&nbsp;Add New', $this->user_role, 'hms-testimonials-addnewgroup', array($this, 'groups_new_page'));
 			add_submenu_page(null, 'Ajax Save', 'Ajax Save', $this->user_role, 'hms-testimonials-sortsave', array($this, 'ajax_sort_save'));
 			add_submenu_page(null, 'View Group', 'View Group', $this->user_role, 'hms-testimonials-viewgroup', array($this, 'groups_view_page'));
-		
 
 			add_submenu_page(null, 'Delete Testimonial', 'Delete Testimonial', $this->user_role, 'hms-testimonials-delete', array($this, 'testimonial_delete_page'));
 			add_submenu_page(null, 'Delete Testimonial From Group', 'Delete Testimonial From Group', $this->user_role, 'hms-testimonials-deletefg', array($this, 'testimonial_delete_from_group_page'));
 			add_submenu_page(null, 'Delete Group', 'Delete Group', $this->user_role, 'hms-testimonials-deletegroup', array($this, 'groups_delete_page'));
+
+			if ($this->options['moderators_can_access_settings'] == 1)
+				$settings_role = $this->user_role;
+				
 		}
+
+		add_submenu_page('hms-testimonials', 'Settings', 'Settings', $settings_role, 'hms-testimonials-settings', array($this, 'settings_page'));
+
+		
 		
 	}
 
@@ -169,6 +189,14 @@ JS;
 			$options['resetapproval'] = (isset($_POST['resetapproval']) && $_POST['resetapproval'] == '1') ? 1 : 0;
 			$options['moderator'] = (isset($_POST['moderator'])) ? $_POST['moderator'] : 'administrator';
 			$options['num_users_can_create'] = (isset($_POST['num_users_can_create'])) ? (int)$_POST['num_users_can_create'] : 1;
+			$options['show_active_links'] = (isset($_POST['show_active_links']) && $_POST['show_active_links'] == '1') ? 1 : 0;
+			$options['active_links_nofollow'] = (isset($_POST['active_links_nofollow']) && $_POST['active_links_nofollow'] == '1') ? 1 : 0;
+			$options['moderators_can_access_settings'] = (isset($_POST['moderators_can_access_settings']) && $_POST['moderators_can_access_settings'] == '1') ? 1 : 0;
+
+			$options['use_recaptcha'] = (isset($_POST['use_recaptcha']) && $_POST['use_recaptcha'] == '1') ? 1 : 0;
+			$options['recaptcha_privatekey'] = (isset($_POST['recaptcha_privatekey'])) ? $_POST['recaptcha_privatekey'] : '';
+			$options['recaptcha_publickey'] = (isset($_POST['recaptcha_publickey'])) ? $_POST['recaptcha_publickey'] : '';
+
 
 			$x = count($_POST['roleorder']);
 			$order = array();
@@ -253,9 +281,41 @@ JS;
 								<th scope="row">5. If a user is below the role level in option 4, set displayed field to <strong>NO</strong> when that user changes or updates their testimonial?</th>
 								<td><input type="checkbox" name="resetapproval" value="1" <?php if ($this->options['resetapproval']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
+							<tr>
+								<th scope="row">6. Moderators can access the settings page?</th>
+								<td><input type="checkbox" name="moderators_can_access_settings" value="1" <?php if ($this->options['moderators_can_access_settings']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+							<tr>
+								<th scope="row">7. If a testimonial has a url, show it as an active link?</th>
+								<td><input type="checkbox" name="show_active_links" value="1" <?php if ($this->options['show_active_links']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+
+							<tr>
+								<th scope="row">8. Add a nofollow relationship to the active link of a testimonial?</th>
+								<td><input type="checkbox" name="active_links_nofollow" value="1" <?php if ($this->options['active_links_nofollow']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
 						</tbody>
 					</table>
+					<br />
 
+					<h3>reCAPTCHA Settings</h3>
+					<p>We offer a shortcode to allow your visitors to submit testimonials. If you would like to use reCAPTCHA for spam measures, enter those settings here.</p>
+					<table class="form-table">
+						<tbody>
+							<tr>
+								<th scope="row">Use reCAPTCHA?</th>
+								<td><input type="checkbox" name="use_recaptcha" value="1" <?php if ($this->options['use_recaptcha']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+							<tr>
+								<th scope="row">Public Key</th>
+								<td><input type="text" name="recaptcha_publickey" value="<?php echo $this->options['recaptcha_publickey']; ?>" /></td>
+							</tr>
+							<tr>
+								<th scope="row">Private Key</th>
+								<td><input type="text" name="recaptcha_privatekey" value="<?php echo $this->options['recaptcha_privatekey']; ?>" /></td>
+							</tr>
+						</tbody>
+					</table>
 
 					<p class="submit"><input type="submit" class="button-primary" name="save" value="Save Settings" /></p>
 				</div>
@@ -278,6 +338,12 @@ JS;
 					<p>Set the role order. Any dropdown on the left that you select, any user with that role or a higher role will be permitted taht action.</p>
 
 					<strong>Drag and drop to sort roles by importance.</strong>
+
+					<br /><br />
+					<hr />
+					<br />
+					<strong>Need a reCAPTCHA account?</strong><br />
+					<a href="http://www.google.com/recaptcha" target="_blank">Sign Up Here It's Free!</a>
 				</div>
 			</form>
 		</div>
@@ -357,7 +423,7 @@ JS;
 								<td><?php echo substr(nl2br($g['testimonial']),0,100).'...'; ?></td>
 								<td><?php echo $g['url']; ?></td>
 								<td>[hms_testimonials id="<?php echo $g['id']; ?>"]</td>
-								<td><?php echo $g['user_login']; ?></td>
+								<td><?php if ($g['user_id'] == 0) echo 'Website Visitor'; else echo $g['user_login']; ?></td>
 								<td><?php echo ($g['display']==1) ? 'Yes' : 'No'; ?></td>
 								<td><a href="<?php echo admin_url('admin.php?page=hms-testimonials-delete&id='.$g['id'].'&noheader=true'); ?>" onclick="if (!confirm('Are you sure you want to delete this testimonial?')) return false;">Delete</a></td>
 							</tr>
@@ -383,10 +449,13 @@ JS;
 			<h2>Documentation</h2>
 
 			<p>This plugin allows you to add customer testimonials to your site in an easy to manage way. HMS Testimonials offers 2 shortcodes with multiple options and 2 widgets.</p>
-
 			<br />
+			<strong>Jump To:</strong> <a href="#hms_testimonials_features">Features</a> | <a href="#hms_testimonials_shortcodes">Shortcodes</a> | 
+				<a href="#hms_testimonials_widgets">Widgets</a> | <a href="#hms_testimonials_css">CSS Classes</a> | <a href="#hms_testimonials_templates">Templates</a>
+			<br /><br />
 
-			<h3>Features</h3>
+			
+			<h3 id="hms_testimonials_features">Features</h3>
 
 			<ol>
 				<li>Set permissiosn based on user roles to allow your users to add testimonials</li>
@@ -399,13 +468,14 @@ JS;
 
 			<br /><br />
 
-			<h3>Shortcode</h3>
+			<h3 id="hms_testimonials_shortcodes">Shortcodes</h3>
 
 			<p>Our shortcode <strong>[hms_testimonials]</strong> offers a few options.</p>
 			<ol>
 				<li><strong>[hms_testimonials]</strong> &nbsp; Shows all of your testimonials that are set to be displayed.</li>
 				<li><strong>[hms_testimonials group="1"]</strong> &nbsp; Shows all of your testimonials in a particular group defined by "group". In this case, group 1</li>
 				<li><strong>[hms_testimonials id="1"]</strong> &nbsp; Only shows 1 testimonial with the id specified. In this case, 1.</li>
+				<li><strong>[hms_testimonials template="1"]</strong> &nbsp; Sets which template to use. By default it uses 1 (Testimonial, Author, URL).
 			</ol>
 
 			<br /><br />
@@ -413,19 +483,118 @@ JS;
 			<ol>
 				<li><strong>[hms_testimonials_rotating]</strong> &nbsp; Rotates through all of your testimonials that are set to be displayed</li>
 				<li><strong>[hms_testimonials group="1"]</strong> &nbsp; Rotates through all of your testimonials in a particular group defined by "group". In this case, group 1</li>
+				<li><strong>[hms_testimonials template="1"]</strong> &nbsp; Sets which template to use. By default it uses 1 (Testimonial, Author, URL).
 				<li><strong>[hms_testimonials seconds="6"]</strong> &nbsp; Sets the interval in seconds for how often the testimonials are rotated.</li>
+				<li><strong>[hms_testimonials show_links="true"]</strong> &nbsp; Show Prev,Pause(Play) and Next links. Defaults to false</li>
+				<li><strong>[hms_testimonials link_prev="Previous"]</strong> &nbsp; Text for the previous link. Defaults to &laquo;</li>
+				<li><strong>[hms_testimonials link_next="Next"]</strong> &nbsp; Text for the next link. Defaults to &raquo;</li>
+				<li><strong>[hms_testimonials link_pause="Pause"]</strong> &nbsp; Text for the pause link. Defaults to Pause</li>
+				<li><strong>[hms_testimonials link_next="Play"]</strong> &nbsp; Text for the play link. Defaults to Play</li>
 			</ol>
+
+			<br /><br />
+
+			<p>Use <strong>[hms_testimonials_form]</strong> to allow your visitors to submit testimonials.  To help combat spam you can enable reCAPTCHA in the settings.</p>
 
 			<p>Place these shortcodes in your posts or pages. If you prefer to stick them in your sidebar see below for the widgets we offer.</p>
 
 			<br /><br />
-			<h3>Widgets</h3>
+			<h3 id="hms_testimonials_widgets">Widgets</h3>
 			<p>We offer a standard widget called HMS Testimonials where you can display all, a group or a single testimonial. We also offer a rotating widget called 
 				HMS Testimonial Rotator that will show 1 at a time of the entire list or a group and swap them out after x amount of seconds</p>
 
+
+			<br /><br />
+			<h3 id="hms_testimonials_css">CSS Classes</h3>
+			<p>We have added some classes to different parts of the testimonial to allow you better styling.</p>
+			<table width="100%">
+				<tr>
+					<td>hms-testimonial-container</td>
+					<td>A div container that the testimonial sits in</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp; testimonial</td>
+					<td>A div container that the testimonial text is wrapped in</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp; author</td>
+					<td>A div container that the author/name is wrapped in</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp; url</td>
+					<td>A div container that the URL if entered is wrapped in</td>
+				</tr>
+				<tr>
+					<td>hms-testimonial-group</td>
+					<td>A div container that contains all the testimonials. Only applicable when all or a group of testimonials are shown.</td>
+				</tr>
+				<tr>
+					<td>hms-testimonial-single</td>
+					<td>Added to the hms-testimonial-container class if only 1 testimonial is shown.</td>
+				</tr>
+				<tr>
+					<td>hms-testimonials-rotator</td>
+					<td>Added to the parent testimonial container for rotating testimonials</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp; controls</td>
+					<td>A div container for the previous, pause/play and next links</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp;&nbsp;&nbsp; prev</td>
+					<td>The previous link</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp;&nbsp;&nbsp; next</td>
+					<td>The next link</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp;&nbsp;&nbsp; playpause</td>
+					<td>The play/pause link</td>
+				</tr>
+
+				<tr>
+					<td> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; play</td>
+					<td>A class added to the play/pause link when showing the play text</td>
+				</tr>
+				<tr>
+					<td> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pause</td>
+					<td>A class added to the play/pause link when showing the pause text</td>
+				</tr>
+			</table>
+			<br /><br />
+
+			<h3 id="hms_testimonials_templates">Templates</h3>
+			<table width="100%">
+				<tr>
+					<td>1</td>
+					<td>Testimonial, Author, URL</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td>Testimonial, URL, Author</td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td>Author, Testimonial, URL</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td>Author, URL, Testimonial</td>
+				</tr>
+				<tr>
+					<td>5</td>
+					<td>URL, Author, Testimonial</td>
+				</tr>
+				<tr>
+					<td>6</td>
+					<td>URL, Testimonial, Author</td>
+				</tr>
+			</table>
+
+
 			<br /><br />
 			<div align="center">
-				A HitMyServer production.<br />
 				<a href="http://hitmyserver.com" target="_blank"><img src="<?php echo plugin_dir_url(__FILE__); ?>images/logo.gif" alt="HitMyServer LLC" /></a>
 			</div>
 		</div>
@@ -487,10 +656,12 @@ JS;
 
 				$_POST = stripslashes_deep($_POST);
 
+				$display_order = $this->wpdb->get_var("SELECT `display_order` FROM `".$this->wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
+
 				$this->wpdb->insert($this->wpdb->prefix."hms_testimonials", 
 					array(
 						'blog_id' => $this->blog_id, 'user_id' => $this->current_user->ID, 'name' => trim($_POST['name']), 
-						'testimonial' => trim($_POST['testimonial']), 'display' => $display,
+						'testimonial' => trim($_POST['testimonial']), 'display' => $display, 'display_order' => ($display_order+1),
 						'url' => $url, 'created_at' => date('Y-m-d h:i:s')));
 
 				$id = $this->wpdb->insert_id;
@@ -1381,6 +1552,30 @@ JS;
 
 				$counter++;
 			}
+		}
+	}
+
+	public static function template($template, $testimonial, $author, $url) {
+		switch((int)$template) {
+			case 1:
+			default:
+				return $testimonial.$author.$url;
+			break;
+			case 2:
+				return $testimonial.$url.$author;
+			break;
+			case 3:
+				return $author.$testimonial.$url;
+			break;
+			case 4:
+				return $author.$url.$testimonial;
+			break;
+			case 5:
+				return $url.$author.$testimonial;
+			break;
+			case 6:
+				return $url.$testimonial.$author;
+			break;
 		}
 	}
 }

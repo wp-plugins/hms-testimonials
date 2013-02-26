@@ -69,6 +69,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 1.6.1 =
+* Added a template attribute to the shortcodes and widgets to specify the order of the testimonial, author and url.
+* Updated documentation to reflect the new template attribute.
+
 = 1.6 =
 * Added Prev,Pause(Play), and Next links to the rotating shortcode and widget.
 * Updated the shortcode widget form to set the text for the links.

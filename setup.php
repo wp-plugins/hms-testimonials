@@ -19,6 +19,7 @@ function hms_testimonials_install() {
 			name text NOT NULL,
 			testimonial text NOT NULL,
 			url VARCHAR(255) DEFAULT '' NOT NULL,
+			testimonial_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 			display_order int(11) DEFAULT 0 NOT NULL,
 			display int(1) DEFAULT 1 NOT NULL,
@@ -46,7 +47,11 @@ function hms_testimonials_install() {
 		dbDelta($sql_3);
 
 		update_option('hms_testimonials_db_version', $hms_testimonials_db_version);
-		update_option('hms_testimonials', array('role' => 'administrator', 'autoapprove' => 'administrator', 'moderator' => 'administrator', 'resetapproval' => 1, 'num_users_can_create' => 1));
+		update_option('hms_testimonials', 
+			array('role' => 'administrator', 'autoapprove' => 'administrator', 'moderator' => 'administrator', 'resetapproval' => 1, 'num_users_can_create' => 1, 
+				  'show_active_links' => 0, 'active_links_nofollow' => 1, 'moderators_can_access_settings' => 1,
+				  'use_recaptcha' => 0, 'recaptcha_privatekey' => '', 'recaptcha_publickey' => ''
+			));
 	}
 }
 

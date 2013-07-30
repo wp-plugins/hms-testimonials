@@ -1983,6 +1983,8 @@ JS;
 		$group_found = false;
 		$testimonials = array();
 
+		$before_output = '';
+
 		$get_group = $this->wpdb->get_row("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_groups` WHERE `id` = ".$group_id." AND `blog_id` = ".(int)$this->blog_id, ARRAY_A);
 
 		if (count($get_group)>0) {
@@ -2036,17 +2038,16 @@ JS;
 				}
 			}
 
-			?>
-			<style type="text/css">
-				<?php foreach($rows_to_show as $r) {
-					if (in_array($r, $this->options['display_rows'])) {
-						?>.row-<?php echo $r; ?> { display:table-cell; }<?php
-					} else {
-						?>.row-<?php echo $r; ?> { display:none;}<?php
-					}
-				} ?>
-			</style>
-			<?php
+			$before_output .= '<style type="text/css">';
+			foreach($rows_to_show as $r) {
+				if (in_array($r, $this->options['display_rows'])) {
+					$before_output .= '.row-'.$r.' { display:table-cell; }';
+				} else {
+					$before_output .= '.row-'.$r.' { display:none;}';
+				}
+			}
+
+			$before_output .= '</style>';
 		}
 
 		if (isset($_POST) && (count($_POST)>0)) {
@@ -2090,7 +2091,7 @@ JS;
 			die(header('Location: '.admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$_GET['id'].'&message='.urlencode('This group has been updated.'))));
 		}
 
-
+		echo $before_output;
 		?>
 		<div class="wrap">
 			<div id="icon-users" class="icon32"></div>

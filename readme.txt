@@ -73,6 +73,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.0.10 =
+* Fixed a bug where content was being sent before a redirect causing a blank page.
+
 = 2.0.9 =
 * Added the ability to toggle between using a div or a blockquote for the testimonial text
 

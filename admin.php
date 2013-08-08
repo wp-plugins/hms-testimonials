@@ -301,19 +301,20 @@ JS;
 	public function settings_page() {
 
 		if (isset($_POST) && (count($_POST)>0)) {
-			
+			check_admin_referer('hms-testimonials-settings');
+
 			$options = $this->options;
 			
 			$options['show_active_links'] = (isset($_POST['show_active_links']) && $_POST['show_active_links'] == '1') ? 1 : 0;
 			$options['active_links_nofollow'] = (isset($_POST['active_links_nofollow']) && $_POST['active_links_nofollow'] == '1') ? 1 : 0;
 
 			$options['use_recaptcha'] = (isset($_POST['use_recaptcha']) && $_POST['use_recaptcha'] == '1') ? 1 : 0;
-			$options['recaptcha_privatekey'] = (isset($_POST['recaptcha_privatekey'])) ? $_POST['recaptcha_privatekey'] : '';
-			$options['recaptcha_publickey'] = (isset($_POST['recaptcha_publickey'])) ? $_POST['recaptcha_publickey'] : '';
+			$options['recaptcha_privatekey'] = (isset($_POST['recaptcha_privatekey'])) ? strip_tags($_POST['recaptcha_privatekey']) : '';
+			$options['recaptcha_publickey'] = (isset($_POST['recaptcha_publickey'])) ? strip_tags($_POST['recaptcha_publickey']) : '';
 
 			$options['image_width'] = (isset($_POST['image_width'])) ? (int)$_POST['image_width'] : 100;
 			$options['image_height'] = (isset($_POST['image_height'])) ? (int)$_POST['image_height'] : 100;
-			$options['date_format'] = (isset($_POST['date_format'])) ? $_POST['date_format'] : 'm/d/Y';
+			$options['date_format'] = (isset($_POST['date_format']) && !empty($_POST['date_format'])) ? strip_tags($_POST['date_format']) : 'm/d/Y';
 
 			$options['testimonial_container'] = (isset($_POST['testimonial_container']) && ($_POST['testimonial_container'] == 'blockquote')) ? 'blockquote' : 'div';
 
@@ -339,7 +340,7 @@ JS;
 			</style>
 
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings'); ?>">
-
+				<?php wp_nonce_field('hms-testimonials-settings'); ?>
 				<div style="float:left;width:50%;">
 					<h3>Settings</h3>
 					<table class="form-table">
@@ -420,12 +421,20 @@ JS;
 		$col = $this->wpdb->get_results("SHOW COLLATION WHERE `Default` = 'Yes'", ARRAY_A);
 
 		if (isset($_POST) && (count($_POST)>0)) {
-			
+			check_admin_referer('hms-testimonials-settings-advanced');
+
 			$options = $this->options;
-			$options['moderator'] = (isset($_POST['moderator'])) ? $_POST['moderator'] : 'administrator';
-			$options['role'] = $_POST['roles'];
+
+			if (isset($_POST['moderator']) && array_key_exists($_POST['moderator'], $this->roles))
+				$options['moderator'] = $_POST['moderator'];
+			else
+				$options['moderator'] = 'administrator';
+
+			if (array_key_exists($_POST['roles'], $this->roles))
+				$options['role'] = strip_tags($_POST['roles']);
+
 			$options['num_users_can_create'] = (isset($_POST['num_users_can_create'])) ? (int)$_POST['num_users_can_create'] : 1;
-			$options['autoapprove'] = $_POST['autoapprove'];
+			$options['autoapprove'] = strip_tags($_POST['autoapprove']);
 			$options['resetapproval'] = (isset($_POST['resetapproval']) && $_POST['resetapproval'] == '1') ? 1 : 0;
 			$options['moderators_can_access_settings'] = (isset($_POST['moderators_can_access_settings']) && $_POST['moderators_can_access_settings'] == '1') ? 1 : 0;
 			$options['js_load'] = (isset($_POST['js_load'])) && ($_POST['js_load'] == 1) ? 1 : 0;
@@ -466,14 +475,8 @@ JS;
 				$options['collation'] = $collate;
 			}
 
-
-			
 			update_option('hms_testimonials', $options);
-
 			$this->options = $options;
-
-
-
 			$updated = 1;
 		}
 		?>
@@ -494,7 +497,7 @@ JS;
 			</style>
 
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings-advanced'); ?>">
-
+				<?php wp_nonce_field('hms-testimonials-settings-advanced'); ?>
 				<div style="float:left;width:50%;">
 					<h3>Advanced Settings</h3>
 					<table class="form-table">
@@ -704,8 +707,8 @@ JS;
 							?>
 							<tr>
 								<td class="row-id"><input type="hidden" name="sort[]" value="<?php echo $g['id']; ?>" /><a href="<?php echo admin_url('admin.php?page=hms-testimonials-view&id='.$g['id']); ?>"><?php echo $g['id']; ?></a></td>
-								<td class="row-name"><?php echo nl2br($g['name']); ?></td>
-								<td class="row-testimonial" width="250"><?php echo substr(nl2br($g['testimonial']),0,100).'...'; ?></td>
+								<td class="row-name"><?php echo nl2br(strip_tags($g['name'])); ?></td>
+								<td class="row-testimonial" width="250"><?php echo substr(nl2br(strip_tags($g['testimonial'])),0,100).'...'; ?></td>
 								<td class="row-url"><?php echo $g['url']; ?></td>
 								<td class="row-testimonial_date"><?php if ($g['testimonial_date'] != '0000-00-00 00:00:00') echo date($this->options['date_format'], strtotime($g['testimonial_date'])); else echo 'Not Set'; ?></td>
 								<td class="row-shortcode">[hms_testimonials id="<?php echo $g['id']; ?>"]</td>
@@ -1028,6 +1031,7 @@ JS;
 	 **/
 
 	public function testimonial_new_page() {
+		
 
 		$image_url = '';
 
@@ -1058,6 +1062,8 @@ JS;
 		
 		$errors = array();
 		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-new');
+
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
 
@@ -1119,11 +1125,31 @@ JS;
 
 				$display_order = $this->wpdb->get_var("SELECT `display_order` FROM `".$this->wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 
+				/**
+				 * Purify the testimonial field
+				 **/
+				if (!class_exists(HTMLPurifier)) {
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+				}
+
+				$config = HTMLPurifier_Config::createDefault();
+
+				/**
+				 * Just in case some users can't use the cache, kill it for all
+				 **/
+				$config->set('Core', 'DefinitionCache', null);
+				$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$purifier = new HTMLPurifier($config);
+
+				$testimonial = $purifier->purify(trim($_POST['testimonial']));
+				$name = $purifier->purify(trim($_POST['name']));
+
+
 				$this->wpdb->insert($this->wpdb->prefix."hms_testimonials", 
 					array(
-						'blog_id' => $this->blog_id, 'user_id' => $this->current_user->ID, 'name' => trim($_POST['name']), 
-						'testimonial' => trim($_POST['testimonial']), 'display' => $display, 'display_order' => ($display_order+1),
-						'url' => $url, 'testimonial_date' => $testimonial_date, 'created_at' => date('Y-m-d h:i:s'),
+						'blog_id' => $this->blog_id, 'user_id' => $this->current_user->ID, 'name' => $name, 
+						'testimonial' => $testimonial, 'display' => $display, 'display_order' => ($display_order+1),
+						'url' => strip_tags($url), 'testimonial_date' => $testimonial_date, 'created_at' => date('Y-m-d h:i:s'),
 						'image' => (($image_url != '') ? (int)$_POST['image'] : 0)));
 
 				$id = $this->wpdb->insert_id;
@@ -1204,6 +1230,7 @@ JS;
 			</style>
 
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-addnew'); ?>" accept-charset="UTF-8">
+			<?php wp_nonce_field('hms-testimonials-new'); ?>
 			<div id="poststuff">
 				<div id="post-body" class="metabox-holder columns-2">
 					<div id="post-body-content">
@@ -1366,6 +1393,7 @@ JS;
 		$image_url = '';
 		$errors = array();
 		if (isset($_POST) && (count($_POST)>0) && count($get_testimonial)>0) {
+			check_admin_referer('hms-testimonials-edit');
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
 
@@ -1431,10 +1459,31 @@ JS;
 					$image = 0;
 				}
 
+
+				/**
+				 * Purify the testimonial field
+				 **/
+				if (!class_exists(HTMLPurifier)) {
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+				}
+
+				$config = HTMLPurifier_Config::createDefault();
+
+				/**
+				 * Just in case some users can't use the cache, kill it for all
+				 **/
+				$config->set('Core', 'DefinitionCache', null);
+				$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$purifier = new HTMLPurifier($config);
+
+				$testimonial = $purifier->purify(trim($_POST['testimonial']));
+				$name = $purifier->purify(trim($_POST['name']));
+
+
 				$updates = array(
-					'name' => trim($_POST['name']), 
-					'testimonial' => trim($_POST['testimonial']), 
-					'url' => $url,
+					'name' => $name, 
+					'testimonial' => $testimonial, 
+					'url' => strip_tags($url),
 					'testimonial_date' => $testimonial_date,
 					'image' => $image
 				);
@@ -1573,6 +1622,7 @@ JS;
 				}
 				</style>
 				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-view&id='.$get_testimonial['id']); ?>" accept-charset="UTF-8">
+					<?php wp_nonce_field('hms-testimonials-edit'); ?>
 					<div id="poststuff">
 				<div id="post-body" class="metabox-holder columns-2">
 					<div id="post-body-content">
@@ -1580,7 +1630,7 @@ JS;
 						<div class="stuffbox">
 							<h3><label for="name">Name</label></h3>
 							<div class="inside">
-								<textarea id="name" name="name"  style="width:99%;" rows="3"><?php echo (!isset($_POST['name']) ? $get_testimonial['name'] : $_POST['name']); ?></textarea>
+								<textarea id="name" name="name"  style="width:99%;" rows="3"><?php echo (!isset($_POST['name']) ? $get_testimonial['name'] : ((isset($name)) ? $name : $_POST['name'])); ?></textarea>
 								<div style="float:left;width:50%;">
 									<p>Example:<br /> &nbsp;&nbsp;John Doe<br />&nbsp;&nbsp;ACME LLC</p>
 								</div>
@@ -1616,7 +1666,7 @@ JS;
 						<div class="stuffbox">
 							<h3><label for="testimonial">Testimonial:</label></h3>
 							<div class="inside">
-								<?php wp_editor((!isset($_POST['testimonial']) ? $get_testimonial['testimonial'] : $_POST['testimonial']), 'testimonial', array('textarea_name' => 'testimonial', 'textarea_rows' => 10) ); ?>
+								<?php wp_editor((!isset($_POST['testimonial']) ? $get_testimonial['testimonial'] : (isset($testimonial) ? $testimonial : $_POST['testimonial'])), 'testimonial', array('textarea_name' => 'testimonial', 'textarea_rows' => 10) ); ?>
 								<br /><br />
 								<strong>HTML is allowed.</strong>
 							</div>
@@ -1879,6 +1929,8 @@ JS;
 
 
 		if (isset($_POST) && (isset($_POST['name'])) && (trim(strip_tags($_POST['name']))!='')) {
+			check_admin_referer('hms-testimonials-new-group');
+
 			$_POST = stripslashes_deep($_POST);
 			$_POST['name'] = str_replace('"', '', $_POST['name']);
 			$_POST['name'] = str_replace("'", '', $_POST['name']);
@@ -1917,6 +1969,7 @@ JS;
 
 			<br />
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-addnewgroup&noheader=true'); ?>">
+				<?php wp_nonce_field('hms-testimonials-new-group'); ?>
 				<div id="poststuff">
 				<div id="post-body" class="metabox-holder columns-1">
 					<div id="post-body-content">
@@ -2051,6 +2104,8 @@ JS;
 		}
 
 		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-edit-group');
+
 			$counter = 1;
 
 			if (isset($_POST['testimonial']) && is_array($_POST['testimonial']) && (count($_POST['testimonial'])>0)) {
@@ -2117,6 +2172,7 @@ JS;
 				
 				<div style="clear:both;"> </div>
 				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$get_group['id'].'&noheader=1'); ?>">
+					<?php wp_nonce_field('hms-testimonials-edit-group'); ?>
 				<table class="wp-list-table widefat" id="sortable">
 					<thead>
 						<tr>
@@ -2280,6 +2336,8 @@ JS;
 	public function customfields_page() {
 
 		if (isset($_POST) && count($_POST)>0) {
+			check_admin_referer('hms-testimonials-new-cf');
+
 			$errors = array();
 
 			$_POST = stripslashes_deep($_POST);
@@ -2296,7 +2354,7 @@ JS;
 				$showonform = (isset($_POST['showonform']) && ($_POST['showonform']==1)) ? 1 : 0;
 				$this->wpdb->insert($this->wpdb->prefix."hms_testimonials_cf", 
 						array(
-							'blog_id' => $this->blog_id, 'name' => $_POST['name'], 'type' => $_POST['type'], 'isrequired' => $isrequired, 'showonform' => $showonform
+							'blog_id' => $this->blog_id, 'name' => strip_tags($_POST['name']), 'type' => strip_tags($_POST['type']), 'isrequired' => $isrequired, 'showonform' => $showonform
 						)
 				);
 
@@ -2387,6 +2445,7 @@ JS;
 			
 			<br /><br />
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings-fields'); ?>">
+				<?php wp_nonce_field('hms-testimonials-new-cf'); ?>
 				<h3>Add a New Custom Field</h3>
 				<table>
 					<tr>
@@ -2480,6 +2539,7 @@ JS;
 		}
 
 		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-edit-cf');
 			$errors = array();
 			$_POST = stripslashes_deep($_POST);
 
@@ -2493,7 +2553,7 @@ JS;
 
 				$isrequired = (isset($_POST['required']) && ($_POST['required']==1)) ? 1 : 0;
 				$showonform = (isset($_POST['showonform']) && ($_POST['showonform']==1)) ? 1 : 0;
-				$this->wpdb->update($this->wpdb->prefix."hms_testimonials_cf", array('name' => $_POST['name'], 'type' => $_POST['type'], 'isrequired' => $isrequired, 'showonform' => $showonform), array('id' => $field['id'], 'blog_id' => $this->blog_id));
+				$this->wpdb->update($this->wpdb->prefix."hms_testimonials_cf", array('name' => strip_tags($_POST['name']), 'type' => strip_tags($_POST['type']), 'isrequired' => $isrequired, 'showonform' => $showonform), array('id' => $field['id'], 'blog_id' => $this->blog_id));
 				$submitted = 1;
 			}
 		} else {
@@ -2521,6 +2581,7 @@ JS;
 
 			
 			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings-fields-edit&id='.$field['id']); ?>">
+				<?php wp_nonce_field('hms-testimonials-edit-cf'); ?>
 				<table>
 					<tr>
 						<td><label for="name">Name:</label></td>
@@ -2637,6 +2698,7 @@ JS;
 		
 
 		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-new-template');
 			$errors = array();
 			$save = array();
 			
@@ -2667,7 +2729,7 @@ JS;
 					$saved_ar = serialize($save);
 
 					$this->wpdb->insert($this->wpdb->prefix."hms_testimonials_templates", 
-						array('blog_id' => $this->blog_id, 'name' => $_POST['name'], 'data' => $saved_ar));
+						array('blog_id' => $this->blog_id, 'name' => strip_tags(trim($_POST['name'])), 'data' => $saved_ar));
 
 					$id = $this->wpdb->insert_id;
 					
@@ -2731,7 +2793,7 @@ JS;
 
 			<div style="float:left;width:30%;">
 				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-templates-new'); ?>">
-
+					<?php wp_nonce_field('hms-testimonials-new-template'); ?>
 					<label for="name"><strong>Template Name</strong></label><br />
 					<input type="text" name="name" id="name" value="<?php echo @$_POST['name']; ?>" />
 					<br /><br />
@@ -2849,6 +2911,8 @@ JS;
 
 
 		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-edit-template');
+
 			$errors = array();
 			$saved = array();
 			$_POST = stripslashes_deep($_POST);
@@ -2885,7 +2949,7 @@ JS;
 
 			if (count($errors) == 0) {
 				$saved_ar = serialize($save);
-				$this->wpdb->update($this->wpdb->prefix."hms_testimonials_templates", array('name' => $_POST['name'], 'data' => $saved_ar), array('id' => $template['id'], 'blog_id' => $this->blog_id));
+				$this->wpdb->update($this->wpdb->prefix."hms_testimonials_templates", array('name' => strip_tags(trim($_POST['name'])), 'data' => $saved_ar), array('id' => $template['id'], 'blog_id' => $this->blog_id));
 				$submitted = 1;
 			}
 
@@ -2961,7 +3025,7 @@ JS;
 			
 			<div style="float:left;width:30%;">
 				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-templates-edit&id='.$template['id']); ?>">
-
+					<?php wp_nonce_field('hms-testimonials-edit-template'); ?>
 					<label for="name"><strong>Template Name</strong></label><br />
 					<input type="text" name="name" id="name" value="<?php echo @$_POST['name']; ?>" />
 					<br /><br />

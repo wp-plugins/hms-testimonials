@@ -14,6 +14,8 @@ function hms_testimonials_form( $atts ) {
 	
 	$ret = '';
 	if (isset($_POST) && isset($_POST['hms_testimonial']) && ($_POST['hms_testimonial'] == 1)) {
+		if (! wp_verify_nonce(@$_REQUEST['_wpnonce'], 'hms-testimonials-form') ) die('Security check stopped this request. Not all required fields were entered. <a href="'.$_SERVER['REQUEST_URI'].'">Go back and try again.</a>');
+
 		$errors = array();
 
 		if (!isset($_POST['hms_testimonials_name']) || (($name = trim(@$_POST['hms_testimonials_name'])) == ''))
@@ -76,8 +78,8 @@ function hms_testimonials_form( $atts ) {
 
 			$wpdb->insert($wpdb->prefix."hms_testimonials", 
 				array(
-					'blog_id' => $blog_id, 'user_id' => $current_user->ID, 'name' => $name, 
-					'testimonial' => $testimonial, 'display' => 0, 'display_order' => ($display_order+1),
+					'blog_id' => $blog_id, 'user_id' => $current_user->ID, 'name' => strip_tags($name), 
+					'testimonial' => strip_tags($testimonial), 'display' => 0, 'display_order' => ($display_order+1),
 					'url' => $website, 'created_at' => date('Y-m-d h:i:s'), 'testimonial_date' => date('Y-m-d h:i:s')
 				)
 			);
@@ -142,9 +144,11 @@ function hms_testimonials_form( $atts ) {
 	$website_text = apply_filters('hms_testimonials_sc_website', __('Website', 'hms-testimonials' ));
 	$testimonial_text = apply_filters('hms_testimonials_sc_testimonial', __('Testimonial', 'hms-testimonials' ));
 	$submit_text = apply_filters('hms_testimonials_sc_submit', __('Submit Testimonial', 'hms-testimonials' ));
+	$nf = wp_nonce_field('hms-testimonials-form', '_wpnonce', true, false);
 
 	$ret .= <<<HTML
 <form method="post">
+{$nf}
 <input type="hidden" name="hms_testimonial" value="1" />
 	<table class="hms-testimonials-form">
 		<tr class="name required">

@@ -3404,6 +3404,21 @@ JS;
 	public static function template($template_id, $testimonial, $word_limit = 0, $char_limit = 0) {
 		global $wpdb, $blog_id;
 
+		/**
+		 * Purify the testimonial field
+		 **/
+		if (!class_exists(HTMLPurifier)) {
+			require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+		}
+
+		$config = HTMLPurifier_Config::createDefault();
+
+		/**
+		 * Just in case some users can't use the cache, kill it for all
+		 **/
+		$config->set('Core', 'DefinitionCache', null);
+		$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+		$purifier = new HTMLPurifier($config);
 
 
 		$default_items = array('system_source', 'system_testimonial');
@@ -3441,9 +3456,12 @@ JS;
 		foreach(self::$template_cache[$template_id] as $k) {
 			switch($k) {
 				case 'system_id':
-					$builder .= '<div class="id">'.apply_filters('hms_testimonials_system_id', $testimonial['id'], $testimonial).'</div>';
+					$builder .= '<div class="id">'.apply_filters('hms_testimonials_system_id', (int)$testimonial['id'], $testimonial).'</div>';
 				break;
 				case 'system_testimonial':
+
+					$testimonial['testimonial'] = $purifier->purify($testimonial['testimonial']);
+
 					if ($word_limit > 0) {
 
 						$word_limit++;
@@ -3474,10 +3492,11 @@ JS;
 						$builder .= '<blockquote class="testimonial">'.apply_filters('hms_testimonials_system_testimonial', $testimonial['testimonial'], $testimonial).'</blockquote>';
 				break;
 				case 'system_source':
+					$testimonial['name'] = $purifier->purify($testimonial['name']);
 					$builder .= '<div class="author">'.apply_filters('hms_testimonials_system_source', nl2br($testimonial['name']), $testimonial).'</div>';
 				break;
 				case 'system_date':
-					$date = strtotime($testimonial['testimonial_date']);
+					$date = strtotime(strip_tags($testimonial['testimonial_date']));
 					$show_date = date(HMS_Testimonials::getInstance()->options['date_format'], $date);
 					$builder .= '<div class="date">'.apply_filters('hms_testimonials_system_date', (($testimonial['testimonial_date'] == '0000-00-00 00:00:00') ? '' : $show_date), $testimonial).'</div>';
 				break;
@@ -3485,6 +3504,7 @@ JS;
 					$url = '';
 
 					if ($testimonial['url'] != '') {
+						$testimonial['url'] = strip_tags($testimonial['url']);
 						if (substr($testimonial['url'],0,4)!='http')
 							$href = 'http://'.$testimonial['url'];
 						else
@@ -3507,17 +3527,19 @@ JS;
 					
 				break;
 				case 'system_image':
-					$image_url = wp_get_attachment_url($testimonial['image']);
+					$image_url = wp_get_attachment_url((int)$testimonial['image']);
 					if ($image_url == '')
 						continue;
 
-					$height = HMS_Testimonials::getInstance()->options['image_height'].'px';
-					$width = HMS_Testimonials::getInstance()->options['image_width'].'px';
+					$height = (int)HMS_Testimonials::getInstance()->options['image_height'].'px';
+					$width = (int)HMS_Testimonials::getInstance()->options['image_width'].'px';
 
 					$builder .= apply_filters('hms_testimonials_system_image', '<img class="image" src="'.$image_url.'" style="height:'.$height.';width:'.$width.';" />', $testimonial);
 
 				break;
 				default:
+
+					$custom_fields[$k] = $purifier->purify($custom_fields[$k]);
 
 					if (isset($custom_fields[(int)$k])) {
 						$lower = strtolower($custom_fields_names[$k]);

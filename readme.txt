@@ -73,6 +73,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.0.12 =
+* Template output now filters more data
+
 = 2.0.11 =
 * Fixed several CSRF (Cross Site Request Forgery) vulnerabilities. Thank you RogueCoder for finding them and disclosing them responsibly.
 * Fixed several XSS (Cross Site Scripting) vulnerabilities. Thank you RogueCoder for finding them and disclosing them responsibly.

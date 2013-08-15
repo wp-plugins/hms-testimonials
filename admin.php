@@ -48,7 +48,9 @@ class HMS_Testimonials {
 			'date_format' => 'm/d/Y',
 			'display_rows' => array('id','name','testimonial','url','testimonial_date','shortcode','user','display'),
 			'js_load' => 0,
-			'testimonial_container' => 'div'
+			'testimonial_container' => 'div',
+			'readmore_link' => '',
+			'readmore_text' => '...'
 		);
 
 		$this->options = array_merge($defaults, $current_options);
@@ -87,6 +89,13 @@ class HMS_Testimonials {
 			self::$instance = new HMS_Testimonials();
 
 		return self::$instance;
+	}
+
+	public function getOption($option, $default = '') {
+		if (!isset($this->options[ $option ]))
+			return $default;
+
+		return $this->options [ $option ];
 	}
 
 	public function get_options() {
@@ -191,6 +200,7 @@ class HMS_Testimonials {
 				<input type="checkbox" class="hms-testimonial-row-selector" name="shortcode" id="shortcode" value="1"<?php if (in_array('shortcode', $this->options['display_rows'])) echo ' checked="checked"'; ?> /> <label for="shortcode">Shortcode</label> &nbsp;&nbsp;
 				<input type="checkbox" class="hms-testimonial-row-selector" name="user" id="user" value="1"<?php if (in_array('user', $this->options['display_rows'])) echo ' checked="checked"'; ?> /> <label for="user">User</label> &nbsp;&nbsp;
 				<input type="checkbox" class="hms-testimonial-row-selector" name="display" id="display" value="1"<?php if (in_array('display', $this->options['display_rows'])) echo ' checked="checked"'; ?> /> <label for="display">Display</label> &nbsp;&nbsp;
+				<input type="checkbox" class="hms-testimonial-row-selector" name="readmore" id="readmore" value="1"<?php if (in_array('readmore', $this->options['display_rows'])) echo ' checked="checked"'; ?> /> <label for="readmore">Read More Link</label> &nbsp;&nbsp;
 				<br /><br />
 				<?php
 				$fields = $this->wpdb->get_results("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_cf` WHERE `blog_id` = ".(int)$this->blog_id." ORDER BY `name` ASC");
@@ -318,6 +328,9 @@ JS;
 
 			$options['testimonial_container'] = (isset($_POST['testimonial_container']) && ($_POST['testimonial_container'] == 'blockquote')) ? 'blockquote' : 'div';
 
+			$options['readmore_link'] = (isset($_POST['readmore_link']) && !empty($_POST['readmore_link'])) ? strip_tags($_POST['readmore_link']) : '';
+			$options['readmore_text'] = (isset($_POST['readmore_text']) && !empty($_POST['readmore_text'])) ? strip_tags($_POST['readmore_text']) : '...';
+
 			update_option('hms_testimonials', $options);
 			$this->options = $options;
 			$updated = 1;
@@ -377,6 +390,21 @@ JS;
 										<option value="blockquote" <?php if ($this->options['testimonial_container'] == 'blockquote') echo ' selected="selected"'; ?>>Blockquote</option>
 									</select>
 								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<br />
+									<strong>The Read More link is a URL to a page that shows testimonials. This is useful if you are using character or word limits as it will show a "Read More" 
+										link at the end.</strong>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">7. "Read More" link</th>
+								<td><input type="text" name="readmore_link" value="<?php echo $this->options['readmore_link']; ?>" /></td>
+							</tr>
+							<tr>
+								<th scope="row">5. "Read More" text</th>
+								<td><input type="text" name="readmore_text" value="<?php echo $this->options['readmore_text']; ?>" size="10" /></td>
 							</tr>
 						</tbody>
 					</table>
@@ -604,7 +632,7 @@ JS;
 	
 	public function admin_page() {
 
-		$rows_to_show = array('id','name','testimonial','url','testimonial_date','shortcode','user','display');
+		$rows_to_show = array('id','name','testimonial','url','testimonial_date','shortcode','user','display','readmore');
 
 		$fields = $this->wpdb->get_results("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_cf` WHERE `blog_id` = ".(int)$this->blog_id." ORDER BY `name` ASC");
 		$field_count = count($fields);
@@ -649,6 +677,7 @@ JS;
 						<th class="row-name">Name</th>
 						<th class="row-testimonial">Testimonial</th>
 						<th class="row-url">URL</th>
+						<th class="row-readmore">Read More Link</th>
 						<th class="row-testimonial_date">Testimonial Date</th>
 						<th class="row-shortcode">Shortcode</th>
 						<th class="row-user">User</th>
@@ -663,6 +692,7 @@ JS;
 						<th class="row-name">Name</th>
 						<th class="row-testimonial">Testimonial</th>
 						<th class="row-url">URL</th>
+						<th class="row-readmore">Read More Link</th>
 						<th class="row-testimonial_date">Testimonial Date</th>
 						<th class="row-shortcode">Shortcode</th>
 						<th class="row-user">User</th>
@@ -710,6 +740,7 @@ JS;
 								<td class="row-name"><?php echo nl2br(strip_tags($g['name'])); ?></td>
 								<td class="row-testimonial" width="250"><?php echo substr(nl2br(strip_tags($g['testimonial'])),0,100).'...'; ?></td>
 								<td class="row-url"><?php echo $g['url']; ?></td>
+								<td class="row-readmore"><?php echo $g['readmore']; ?></td>
 								<td class="row-testimonial_date"><?php if ($g['testimonial_date'] != '0000-00-00 00:00:00') echo date($this->options['date_format'], strtotime($g['testimonial_date'])); else echo 'Not Set'; ?></td>
 								<td class="row-shortcode">[hms_testimonials id="<?php echo $g['id']; ?>"]</td>
 								<td class="row-user"><?php if ($g['user_id'] == 0) echo 'Website Visitor'; else echo $g['user_login']; ?></td>
@@ -1143,13 +1174,14 @@ JS;
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));
 				$name = $purifier->purify(trim($_POST['name']));
+				$readmore = (isset($_POST['readmore']) && !empty($_POST['readmore'])) ? trim($_POST['readmore']) : '';
 
 
 				$this->wpdb->insert($this->wpdb->prefix."hms_testimonials", 
 					array(
 						'blog_id' => $this->blog_id, 'user_id' => $this->current_user->ID, 'name' => $name, 
 						'testimonial' => $testimonial, 'display' => $display, 'display_order' => ($display_order+1),
-						'url' => strip_tags($url), 'testimonial_date' => $testimonial_date, 'created_at' => date('Y-m-d h:i:s'),
+						'url' => strip_tags($url), 'readmore' => strip_tags($readmore), 'testimonial_date' => $testimonial_date, 'created_at' => date('Y-m-d h:i:s'),
 						'image' => (($image_url != '') ? (int)$_POST['image'] : 0)));
 
 				$id = $this->wpdb->insert_id;
@@ -1305,6 +1337,15 @@ JS;
 						}
 						?>
 						
+						<div class="stuffbox">
+							<h3><label for="readmore">Read More Page:</label></h3>
+							<div class="inside">
+								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo @$_POST['readmore']; ?>" />
+								<p>With the shortcodes and widgets you can limit the number of characters or words shown. When using this option there is a read more link added to the end of it. 
+									This setting allows you to change the link on an individual testimonial.</p>
+								<p>Example: http://hitmyserver.com/testimonial</p>
+							</div>
+						</div>
 					</div>
 
 					<div class="postbox-container" id="postbox-container-1">
@@ -1478,14 +1519,15 @@ JS;
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));
 				$name = $purifier->purify(trim($_POST['name']));
-
+				$readmore = (isset($_POST['readmore']) && !empty($_POST['readmore'])) ? trim($_POST['readmore']) : '';
 
 				$updates = array(
 					'name' => $name, 
 					'testimonial' => $testimonial, 
 					'url' => strip_tags($url),
 					'testimonial_date' => $testimonial_date,
-					'image' => $image
+					'image' => $image,
+					'readmore' => strip_tags($readmore)
 				);
 
 				if ($this->can_access('autoapprove'))
@@ -1705,6 +1747,16 @@ JS;
 
 						}
 						?>
+
+						<div class="stuffbox">
+							<h3><label for="readmore">Read More Page:</label></h3>
+							<div class="inside">
+								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo (!isset($_POST['readmore']) ? $get_testimonial['readmore'] : $_POST['readmore']); ?>" />
+								<p>With the shortcodes and widgets you can limit the number of characters or words shown. When using this option there is a read more link added to the end of it. 
+									This setting allows you to change the link on an individual testimonial.</p>
+								<p>Example: http://hitmyserver.com/testimonial</p>
+							</div>
+						</div>
 
 						
 					</div>
@@ -2077,7 +2129,7 @@ JS;
 		}
 
 		if ($group_found) {
-			$rows_to_show = array('id','name','testimonial','url','testimonial_date','shortcode','user','display');
+			$rows_to_show = array('id','name','testimonial','url','testimonial_date','shortcode','user','display', 'readmore');
 
 			$fields = $this->wpdb->get_results("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_cf` WHERE `blog_id` = ".(int)$this->blog_id." ORDER BY `name` ASC");
 			$field_count = count($fields);
@@ -2181,6 +2233,7 @@ JS;
 							<th class="row-name">Name</th>
 							<th class="row-testimonial">Testimonial</th>
 							<th class="row-url">URL</th>
+							<th class="row-readmore">Read More Link</th>
 							<th class="row-testimonial_date">Testimonial Date</th>
 							<th class="row-shortcode">Shortcode</th>
 							<th class="row-user">User</th>
@@ -2195,6 +2248,7 @@ JS;
 							<th class="row-name">Name</th>
 							<th class="row-testimonial">Testimonial</th>
 							<th class="row-url">URL</th>
+							<th class="row-readmore">Read More Link</th>
 							<th class="row-testimonial_date">Testimonial Date</th>
 							<th class="row-shortcode">Shortcode</th>
 							<th class="row-user">User</th>
@@ -2223,6 +2277,7 @@ JS;
 									<td class="row-name" valign="top"><?php echo nl2br($t['name']); ?></td>
 									<td class="row-testimonial" valign="top"><?php echo substr(nl2br($t['testimonial']),0,100).'...' ?></td>
 									<td class="row-url"><?php echo $t['url']; ?></td>
+									<td class="row-readmore"><?php echo $t['readmore']; ?></td>
 									<td class="row-testimonial_date"><?php if ($t['testimonial_date'] != '0000-00-00 00:00:00') echo date($this->options['date_format'], strtotime($t['testimonial_date'])); else echo 'Not Set'; ?></td>
 									<td class="row-shortcode">[hms_testimonials id="<?php echo $t['id']; ?>"]</td>
 									<td class="row-user"><?php if ($t['user_id'] == 0) echo 'Website Visitor'; else echo $t['user_login']; ?></td>
@@ -3309,7 +3364,7 @@ JS;
 
 	public function ajax_display_rows_save() {
 
-		$defaults = array('id','name','testimonial','url','testimonial_date','shortcode','user','display');
+		$defaults = array('id','name','testimonial','url','testimonial_date','shortcode','user','display', 'readmore');
 		$fields = array();
 		$get_fields = $this->wpdb->get_results("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_cf` WHERE `blog_id` = ".(int)$this->blog_id." ORDER BY `name` ASC");
 		if (count($get_fields)>0) {
@@ -3401,7 +3456,7 @@ JS;
 	 * Word limit sets the number of characters to show. If NOT -1 limit it.
 	 **/
 
-	public static function template($template_id, $testimonial, $word_limit = 0, $char_limit = 0) {
+	public static function template($template_id, $testimonial, $word_limit = 0, $char_limit = 0, $options = array()) {
 		global $wpdb, $blog_id;
 
 		/**
@@ -3460,6 +3515,17 @@ JS;
 				break;
 				case 'system_testimonial':
 
+
+					$readmore_text = (isset($options['readmore_text'])) ? $options['readmore_text'] : HMS_Testimonials::getInstance()->getOption('readmore_text', '');
+					$readmore_link = (isset($options['readmore_link'])) ? $options['readmore_link'] : HMS_Testimonials::getInstance()->getOption('readmore_link', '');
+
+					if (isset($testimonial['readmore']) && $testimonial['readmore'] != '')
+						$readmore_link = $testimonial['readmore'];
+
+					$readmore = '';
+					if ($readmore_link != '')
+						$readmore = '<a class="readmore" href="'.$readmore_link.'">'.$readmore_text.'</a>';
+
 					$testimonial['testimonial'] = $purifier->purify($testimonial['testimonial']);
 
 					if ($word_limit > 0) {
@@ -3471,14 +3537,14 @@ JS;
 						 * If there are more words than we actually want (see line 3304) then the last item should be ...
 						 **/
 						if (count($exp) == $word_limit)
-							$exp[ $word_limit - 1 ] = '...';
+							$exp[ $word_limit - 1 ] = $readmore;
 
 						$testimonial['testimonial'] = implode(' ', $exp);
 
 					} elseif ($char_limit > 0) {
 						
 						if (strlen($testimonial['testimonial']) > $char_limit)
-							$testimonial['testimonial'] = substr($testimonial['testimonial'], 0, $char_limit).'...';
+							$testimonial['testimonial'] = substr(strip_tags($testimonial['testimonial']), 0, $char_limit).$readmore;
 
 					} else {
 						$testimonial['testimonial'] = nl2br($testimonial['testimonial']);

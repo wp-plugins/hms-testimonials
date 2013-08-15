@@ -3,7 +3,7 @@ Contributors: kreitje
 Donate link: hitmyserver.com/wordpress-plugins/
 Tags: testimonials, reviews, client reviews, what they are saying
 Requires at least: 3.0.1
-Tested up to: 3.5
+Tested up to: 3.6
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -72,6 +72,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.1.0 =
+* Added Read More settings
+* Added a new field to testimonials to specify your own read more link on an indvidual basis.
 
 = 2.0.12 =
 * Template output now filters more data

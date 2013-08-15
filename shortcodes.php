@@ -228,7 +228,9 @@ function hms_testimonials_show( $atts ) {
 			'order' => 'display_order',
 			'direction' => 'ASC',
 			'word_limit' => 0,
-			'char_limit' => 0
+			'char_limit' => 0,
+			'readmore_link' => HMS_Testimonials::getInstance()->getOption('readmore_link', ''),
+			'readmore_text' => HMS_Testimonials::getInstance()->getOption('readmore_text', '...'),
 		), $atts
 	));
 
@@ -236,6 +238,11 @@ function hms_testimonials_show( $atts ) {
 	if ($order == 'rand') $order = 'RAND()';
 	if ($direction != 'DESC') $direction = 'ASC';
 	if ($start != 0) $start = (int)$start - 1;
+
+	$options = array(
+		'readmore_link' => $readmore_link,
+		'readmore_text' => $readmore_text
+	);
 
 	$sql_limit = '';
 	
@@ -266,8 +273,6 @@ function hms_testimonials_show( $atts ) {
 			$new_start = (($current_page * $limit) - $limit) + $start;
 		}
 
-
-
 		$sql_limit = 'LIMIT '.intval($new_start).', '.intval($limit);
 	}
 
@@ -280,7 +285,7 @@ function hms_testimonials_show( $atts ) {
 			return '';
 
 		$ret = '<div class="hms-testimonial-container hms-testimonial-single hms-testimonial-'.$get['id'].' hms-testimonial-template-'.$template.'">';
-			$ret .= HMS_Testimonials::template($template, $get, (int)$word_limit, (int)$char_limit);
+			$ret .= HMS_Testimonials::template($template, $get, (int)$word_limit, (int)$char_limit, $options);
 		$ret .= '</div>';
 		
 
@@ -318,7 +323,7 @@ function hms_testimonials_show( $atts ) {
 
 			$ret .= '<div class="hms-testimonial-container hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'">';
 
-				$ret .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit);
+				$ret .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit, $options);
 
 			$ret .= '</div>';
 
@@ -356,7 +361,9 @@ function hms_testimonials_show_rotating( $atts ) {
 			'order' => 'display_order',
 			'direction' => 'ASC',
 			'word_limit' => 0,
-			'char_limit' => 0
+			'char_limit' => 0,
+			'readmore_link' => HMS_Testimonials::getInstance()->getOption('readmore_link', ''),
+			'readmore_text' => HMS_Testimonials::getInstance()->getOption('readmore_text', '...'),
 		), $atts
 	));
 
@@ -364,6 +371,11 @@ function hms_testimonials_show_rotating( $atts ) {
 	if ($order == 'rand') $order = 'RAND()';
 	if ($direction != 'DESC') $direction = 'ASC';
 	if ($link_position != 'top' && $link_position != 'both') $link_position = 'bottom';
+
+	$options = array(
+		'readmore_link' => $readmore_link,
+		'readmore_text' => $readmore_text
+	);
 
 	$start = false;
 	$start_int = 0;
@@ -407,7 +419,7 @@ function hms_testimonials_show_rotating( $atts ) {
 
 		$return .= '<div class="hms-testimonial-container hms-testimonial-'.$get[0]['id'].' hms-testimonial-template-'.$template.'"">';
 						
-		$return .= HMS_Testimonials::template($template, $get[0], (int)$word_limit, (int)$char_limit);
+		$return .= HMS_Testimonials::template($template, $get[0], (int)$word_limit, (int)$char_limit, $options);
 
 		$return .= '</div>';
 
@@ -422,7 +434,7 @@ function hms_testimonials_show_rotating( $atts ) {
 	foreach($get as $g) {
 		$return .= '<div class="hms-testimonial-container hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'"">';
 		
-			$return .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit);
+			$return .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit, $options);
 
 		$return .= '</div>';	
 	}

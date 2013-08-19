@@ -73,6 +73,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.2 =
+* Fixed a bug with HTMLPurifier not working on some hosts.
+
 = 2.1.1 =
 * Moved the rotating javascript to the footer
 

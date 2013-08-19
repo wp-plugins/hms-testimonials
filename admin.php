@@ -1160,7 +1160,7 @@ JS;
 				 * Purify the testimonial field
 				 **/
 				if (!class_exists(HTMLPurifier)) {
-					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 				}
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -1505,7 +1505,7 @@ JS;
 				 * Purify the testimonial field
 				 **/
 				if (!class_exists(HTMLPurifier)) {
-					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 				}
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -3463,7 +3463,7 @@ JS;
 		 * Purify the testimonial field
 		 **/
 		if (!class_exists(HTMLPurifier)) {
-			require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+			require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 		}
 
 		$config = HTMLPurifier_Config::createDefault();

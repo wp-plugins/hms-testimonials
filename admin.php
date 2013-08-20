@@ -1112,7 +1112,7 @@ JS;
 
 					switch($f->type) {
 						case 'email':
-							if (!filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
+							if (( isset($_POST['cf'][$f->id]) && ($_POST['cf'][$f->id])) && !filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
 								$errors[] = 'Please enter a valid email for the '.$f->name.' field.';
 						break;
 					}
@@ -1452,7 +1452,7 @@ JS;
 
 					switch($f->type) {
 						case 'email':
-							if (!filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
+							if ( ( isset($_POST['cf'][$f->id]) && ($_POST['cf'][$f->id])) && !filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
 								$errors[] = 'Please enter a valid email for the '.$f->name.' field.';
 						break;
 					}

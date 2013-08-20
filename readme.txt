@@ -73,6 +73,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.3 =
+* Fixed a bug where email custom fields were required despite the "Required" checkbox not being checked.
+
 = 2.1.2 =
 * Fixed a bug with HTMLPurifier not working on some hosts.
 

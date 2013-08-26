@@ -34,7 +34,7 @@ function hms_testimonials_form( $atts ) {
 
 				switch($f->type) {
 					case 'email':
-						if (!filter_var($_POST['hms_testimonials_cf'][$f->id], FILTER_VALIDATE_EMAIL))
+						if (isset($_POST['hms_testimonials_cf'][$f->id]) && ($_POST['hms_testimonials_cf'][$f->id] != '') && !filter_var($_POST['hms_testimonials_cf'][$f->id], FILTER_VALIDATE_EMAIL))
 							$errors[] = sprintf( __('Please enter a valid email for the %1$s field.', 'hms-testimonials'), $f->name );
 					break;
 				}
@@ -47,6 +47,11 @@ function hms_testimonials_form( $atts ) {
 		$website = '';
 		if (isset($_POST['hms_testimonials_website']) && ($_POST['hms_testimonials_website'] != '')) {
 			$website = $_POST['hms_testimonials_website'];
+
+			$website_parts = parse_url($website);
+			if ($website_parts !== false && !isset($website_parts['scheme']))
+				$website = 'http://' . $website;
+			
 
 			if (!filter_var($website, FILTER_VALIDATE_URL))
 				$errors[] = __('Please enter a valid URL.', 'hms-testimonials' );
@@ -265,9 +270,23 @@ function hms_testimonials_show( $atts ) {
 		$total_results = count($get_count);
 		$pages = ceil($total_results/$limit);
 
-		if (!isset($_GET['hms_testimonials_page']) || !is_numeric($_GET['hms_testimonials_page']) || $_GET['hms_testimonials_page'] > $pages || $_GET['hms_testimonials_page'] < 1) {
+		/**
+		 * If not set or is an invalid value make it the first page
+		 **/
+		if (!isset($_GET['hms_testimonials_page']) || (int)$_GET['hms_testimonials_page'] <= 1) {
 			$current_page = 1;
 			$new_start = $start;
+
+		/**
+		 * If the page number is set but greater than the number of pages, set it to the last page
+		 **/
+		} elseif ((int)$_GET['hms_testimonials_page'] > $pages) {
+			$current_page = $pages;
+			$new_start = (($current_page * $limit) - $limit) + $start;
+
+		/**
+		 * We are inbetween 1 and the maximum number of pages
+		 **/
 		} else {
 			$current_page = (int)$_GET['hms_testimonials_page'];
 			$new_start = (($current_page * $limit) - $limit) + $start;
@@ -395,7 +414,7 @@ function hms_testimonials_show_rotating( $atts ) {
 	$characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     
     for ($i = 0; $i < 5; $i++)
-    	$random_string .= $characters[rand(0, strlen($characters))];
+    	$random_string .= $characters[rand(0, 51)];
 
 
     if ($group == 0)
@@ -547,7 +566,8 @@ function hms_testimonials_build_pagination($current_page, $total_pages, $prev, $
 	else
 		$url[0] .= '?';
 
-
+	$return = '';
+	
 	if ($current_page > 1)
 		$return .= '<a href="' . $url[0] . 'hms_testimonials_page='.($current_page - 1).'" class="prev">'.$prev.'</a> ';
 

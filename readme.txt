@@ -73,6 +73,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.7 =
+* Fixed some notces that are displayed when debugging is turned on.
+* When submitting a URL through the form shortcode it will auto append http:// to the website if it doesn't exist.
+
 = 2.1.6 =
 * Fixed a bug in multi-site mode where templates keep getting created on every page load
 

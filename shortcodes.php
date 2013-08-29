@@ -14,7 +14,10 @@ function hms_testimonials_form( $atts ) {
 	
 	$ret = '';
 	if (isset($_POST) && isset($_POST['hms_testimonial']) && ($_POST['hms_testimonial'] == 1)) {
+
 		if (! wp_verify_nonce(@$_REQUEST['_wpnonce'], 'hms-testimonials-form') ) die('Security check stopped this request. Not all required fields were entered. <a href="'.$_SERVER['REQUEST_URI'].'">Go back and try again.</a>');
+
+		$_POST = stripslashes_deep($_POST);
 
 		$errors = array();
 
@@ -78,6 +81,7 @@ function hms_testimonials_form( $atts ) {
 			$ret .= '<div class="hms_testimonial_errors">'.join('<br />', $errors).'</div><br />';
 
 		else {
+
 
 			$display_order = $wpdb->get_var("SELECT `display_order` FROM `".$wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 

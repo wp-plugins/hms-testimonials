@@ -1095,6 +1095,8 @@ JS;
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-new');
 
+			$_POST = stripslashes_deep($_POST);
+
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
 
@@ -1152,7 +1154,7 @@ JS;
 
 			if (count($errors)<1) {
 
-				$_POST = stripslashes_deep($_POST);
+				
 
 				$display_order = $this->wpdb->get_var("SELECT `display_order` FROM `".$this->wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 
@@ -1434,6 +1436,8 @@ JS;
 		$image_url = '';
 		$errors = array();
 		if (isset($_POST) && (count($_POST)>0) && count($get_testimonial)>0) {
+			$_POST = stripslashes_deep($_POST);
+
 			check_admin_referer('hms-testimonials-edit');
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
@@ -1487,8 +1491,6 @@ JS;
 				$display = 1;
 
 			if (count($errors)<1) {
-				$_POST = stripslashes_deep($_POST);
-
 
 				if (isset($_POST['image']) && ($_POST['image'] != 0)) {
 					$image_url = wp_get_attachment_url($_POST['image']);
@@ -2755,6 +2757,9 @@ JS;
 
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-new-template');
+
+			$_POST = stripslashes_deep($_POST);
+
 			$errors = array();
 			$save = array();
 			
@@ -2763,8 +2768,7 @@ JS;
 
 
 			if (count($_POST['item'])>0) {
-				$_POST = stripslashes_deep($_POST);
-
+			
 				foreach($_POST['item'] as $i) {
 					
 					if (isset($system_fields[$i])) {
@@ -2978,7 +2982,7 @@ JS;
 
 			
 			if (count($_POST['item'])>0) {
-				$_POST = stripslashes_deep($_POST);
+				
 
 				foreach($_POST['item'] as $i) {
 					

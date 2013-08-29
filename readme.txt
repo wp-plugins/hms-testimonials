@@ -73,6 +73,30 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.8 =
+* hms_testimonials_form shortcode now escapes POST data.
+* Fixed a bug where input did not have slashes stripped when an error occured.
+
+= 2.1.7 =
+* Fixed some notces that are displayed when debugging is turned on.
+* When submitting a URL through the form shortcode it will auto append http:// to the website if it doesn't exist.
+
+= 2.1.6 =
+* Fixed a bug in multi-site mode where templates keep getting created on every page load
+
+= 2.1.5 =
+* Fixed a bug when generating a random string in the widgets and shortcodes
+
+= 2.1.4 =
+* Fixed a bug with pagination and determining the current page
+* Fixed some notices / deperaction messages in HTMLPurifier
+
+= 2.1.3 =
+* Fixed a bug where email custom fields were required despite the "Required" checkbox not being checked.
+
+= 2.1.2 =
+* Fixed a bug with HTMLPurifier not working on some hosts.
+
 = 2.1.1 =
 * Moved the rotating javascript to the footer
 

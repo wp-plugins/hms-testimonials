@@ -170,7 +170,7 @@ class HMS_Testimonials_View extends WP_Widget {
 				echo $args['before_title'].$instance['title'].$args['after_title'];
 
 		if ($single==1) {
-			echo '<div class="hms-testimonial-container hms-testimonial-single hms-testimonial-'.$get['id'].'">';
+			echo '<div class="hms-testimonial-container hms-testimonial-single hms-testimonial-'.$get['id'].'" itemscope itemtype="http://schema.org/Review">';
 				
 			echo HMS_Testimonials::template($instance['template'], $get, (int)$instance['word_limit'], (int)$instance['char_limit']);
 
@@ -179,7 +179,7 @@ class HMS_Testimonials_View extends WP_Widget {
 			$x = 1;
 			foreach($get as $g) {
 
-				echo '<div class="hms-testimonial-container hms-testimonial-counter-'.$x.'">';
+				echo '<div class="hms-testimonial-container hms-testimonial-counter-'.$x.'" itemscope itemtype="http://schema.org/Review">';
 				
 					echo HMS_Testimonials::template($instance['template'], $g, (int)$instance['word_limit'], (int)$instance['char_limit']);
 				
@@ -347,7 +347,6 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 
 		$instance['link_position'] = (isset($new_instance['link_position']) && in_array($new_instance['link_position'], $valid)) ? $new_instance['link_position'] : 'bottom';
 		$instance['autostart'] = (isset($new_instance['autostart']) && $new_instance['autostart']=='1') ? 1 : 0;
-
 		$instance['word_limit'] = (isset($new_instance['word_limit'])) ? (int)$new_instance['word_limit'] : 0;
 		$instance['char_limit'] = (isset($new_instance['char_limit'])) ? (int)$new_instance['char_limit'] : 0;
 
@@ -360,6 +359,21 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 
 		if (!isset($instance['group']))
 			$instance['group'] = 0;
+
+		if (!isset($instance['autostart']))
+			$instance['autostart'] = 0;
+
+		if (!isset($instance['word_limit']))
+			$instance['word_limit'] = 0;
+
+		if (!isset($instance['char_limit']))
+			$instance['char_limit'] = 0;
+
+		if (!isset($instance['show_links']))
+			$instance['show_links'] = 0;
+
+		if (!isset($instance['seconds']))
+			$instance['seconds'] = 10;
 
 		$order = ($instance['order'] == 'DESC') ? 'DESC' : 'ASC';
 		$sort = $instance['sortby'];
@@ -403,7 +417,7 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 			if ($instance['show_links'] == 1 && ($instance['link_position'] == 'top' || $instance['link_position'] == 'both'))
 				echo '<div class="controls"><a href="#" class="prev">'.$instance['link_prev'].'</a> <a href="#" class="playpause '.$play_pause_class.'">'.$link_text.'</a> <a href="#" class="next">'.$instance['link_next'].'</a></div>';
 
-			echo '<div class="hms-testimonial-container">';
+			echo '<div class="hms-testimonial-container" itemscope itemtype="http://schema.org/Review">';
 				echo HMS_Testimonials::template($instance['template'], $get[0], (int)$instance['word_limit'], (int)$instance['char_limit']);
 			echo '</div>';
 
@@ -416,7 +430,7 @@ class HMS_Testimonials_Rotator extends WP_Widget {
 
 			<?php
 				foreach($get as $g) {
-					echo '<div class="hms-testimonial-container">';
+					echo '<div class="hms-testimonial-container" itemscope itemtype="http://schema.org/Review">';
 						echo HMS_Testimonials::template($instance['template'], $g, (int)$instance['word_limit'], (int)$instance['char_limit']);
 					echo '</div>';
 				} ?>
@@ -520,7 +534,7 @@ JS;
 		$characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     	$randstring = '';
     	for ($i = 0; $i < 5; $i++)
-            $randstring .= $characters[rand(0, strlen($characters))];
+            $randstring .= $characters[rand(0, 51)];
         
     	return $randstring;
 	}

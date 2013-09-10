@@ -73,6 +73,12 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.9 =
+* Fixed a PHP notice dealing with custom fields
+* Added random to the order attributes. It works the same as rand
+* Changed email custom field on the form shortcode to be a type of email instead of text
+* Added review microdata to testimonials. See: http://schema.org/Review
+
 = 2.1.8 =
 * hms_testimonials_form shortcode now escapes POST data.
 * Fixed a bug where input did not have slashes stripped when an error occured.

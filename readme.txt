@@ -73,6 +73,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.1.10 =
+* The js.php script now allows you to load rotating testimonials.
+
 = 2.1.9 =
 * Fixed a PHP notice dealing with custom fields
 * Added random to the order attributes. It works the same as rand

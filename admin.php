@@ -215,7 +215,7 @@ class HMS_Testimonials {
 	}
 
 
-	public function settings_link($links, $file = '') {
+	public static function settings_link($links, $file = '') {
 
 		if ($file == plugin_basename(dirname(__FILE__).'/hms-testimonials.php')){
 			$settings_link = '<a href="'.admin_url('admin.php?page=hms-testimonials-settings').'">Settings</a>';
@@ -1095,6 +1095,8 @@ JS;
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-new');
 
+			$_POST = stripslashes_deep($_POST);
+
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
 
@@ -1112,7 +1114,7 @@ JS;
 
 					switch($f->type) {
 						case 'email':
-							if (!filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
+							if (( isset($_POST['cf'][$f->id]) && ($_POST['cf'][$f->id])) && !filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
 								$errors[] = 'Please enter a valid email for the '.$f->name.' field.';
 						break;
 					}
@@ -1152,15 +1154,15 @@ JS;
 
 			if (count($errors)<1) {
 
-				$_POST = stripslashes_deep($_POST);
+				
 
 				$display_order = $this->wpdb->get_var("SELECT `display_order` FROM `".$this->wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 
 				/**
 				 * Purify the testimonial field
 				 **/
-				if (!class_exists(HTMLPurifier)) {
-					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+				if (!class_exists('HTMLPurifier')) {
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 				}
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -1168,8 +1170,8 @@ JS;
 				/**
 				 * Just in case some users can't use the cache, kill it for all
 				 **/
-				$config->set('Core', 'DefinitionCache', null);
-				$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$config->set('Cache.DefinitionImpl', null);
+				$config->set('URI.AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
 				$purifier = new HTMLPurifier($config);
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));
@@ -1275,8 +1277,8 @@ JS;
 									<p>Example:<br /> &nbsp;&nbsp;John Doe<br />&nbsp;&nbsp;ACME LLC</p>
 								</div>
 								<div style="float:right;width:49%;">
-									<p><a href="#" class="upload_image_button" class="button">Upload/Attach an image</a> <?php if ($image_url != '') { ?> &nbsp; / &nbsp;<a href="#" class="remove_image_button">Remove Image</a> <?php } ?></p>
-									<div class="image-container"><?php if ($image_url != '') echo '<img src="'.$image_url.'" class="testimonial-image" />'; ?>
+									<p><a href="#" class="upload_image_button" class="button">Upload/Attach an image</a> <?php if (isset($image_url) && $image_url != '') { ?> &nbsp; / &nbsp;<a href="#" class="remove_image_button">Remove Image</a> <?php } ?></p>
+									<div class="image-container"><?php if (isset($image_url) && $image_url != '') echo '<img src="'.$image_url.'" class="testimonial-image" />'; ?>
 									</div>
 									<input type="hidden" name="image" id="attachment_id" value="<?php if (isset($_POST['image'])&&($_POST['image']!=0)) echo $_POST['image']; ?>" />
 								</div>
@@ -1434,6 +1436,8 @@ JS;
 		$image_url = '';
 		$errors = array();
 		if (isset($_POST) && (count($_POST)>0) && count($get_testimonial)>0) {
+			$_POST = stripslashes_deep($_POST);
+
 			check_admin_referer('hms-testimonials-edit');
 			if (!isset($_POST['name']) || trim($_POST['name']) == '')
 				$errors[] = 'Please enter a name for this testimonial.';
@@ -1452,7 +1456,7 @@ JS;
 
 					switch($f->type) {
 						case 'email':
-							if (!filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
+							if ( ( isset($_POST['cf'][$f->id]) && ($_POST['cf'][$f->id])) && !filter_var($_POST['cf'][$f->id], FILTER_VALIDATE_EMAIL))
 								$errors[] = 'Please enter a valid email for the '.$f->name.' field.';
 						break;
 					}
@@ -1487,8 +1491,6 @@ JS;
 				$display = 1;
 
 			if (count($errors)<1) {
-				$_POST = stripslashes_deep($_POST);
-
 
 				if (isset($_POST['image']) && ($_POST['image'] != 0)) {
 					$image_url = wp_get_attachment_url($_POST['image']);
@@ -1504,8 +1506,8 @@ JS;
 				/**
 				 * Purify the testimonial field
 				 **/
-				if (!class_exists(HTMLPurifier)) {
-					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+				if (!class_exists('HTMLPurifier')) {
+					require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 				}
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -1513,8 +1515,8 @@ JS;
 				/**
 				 * Just in case some users can't use the cache, kill it for all
 				 **/
-				$config->set('Core', 'DefinitionCache', null);
-				$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$config->set('Cache.DefinitionImpl', null);
+				$config->set('URI.AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
 				$purifier = new HTMLPurifier($config);
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));
@@ -2389,12 +2391,12 @@ JS;
 	* Custom Fields
 	**/
 	public function customfields_page() {
+		$errors = array();
 
 		if (isset($_POST) && count($_POST)>0) {
 			check_admin_referer('hms-testimonials-new-cf');
 
-			$errors = array();
-
+			
 			$_POST = stripslashes_deep($_POST);
 
 			if (!isset($_POST['name']) || empty($_POST['name']))
@@ -2580,6 +2582,7 @@ JS;
 
 		$id = (isset($_GET['id'])) ? (int)$_GET['id'] : 0;
 		$field = $this->wpdb->get_row("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_cf` WHERE `id` = ".(int)$id." AND `blog_id` = ".(int)$this->blog_id, ARRAY_A);
+		$errors = array();
 		
 		if (count($field) < 1) {
 			?>
@@ -2595,7 +2598,7 @@ JS;
 
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-edit-cf');
-			$errors = array();
+			
 			$_POST = stripslashes_deep($_POST);
 
 			if (!isset($_POST['name']) || empty($_POST['name']))
@@ -2754,6 +2757,9 @@ JS;
 
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-new-template');
+
+			$_POST = stripslashes_deep($_POST);
+
 			$errors = array();
 			$save = array();
 			
@@ -2762,8 +2768,7 @@ JS;
 
 
 			if (count($_POST['item'])>0) {
-				$_POST = stripslashes_deep($_POST);
-
+			
 				foreach($_POST['item'] as $i) {
 					
 					if (isset($system_fields[$i])) {
@@ -2977,7 +2982,7 @@ JS;
 
 			
 			if (count($_POST['item'])>0) {
-				$_POST = stripslashes_deep($_POST);
+				
 
 				foreach($_POST['item'] as $i) {
 					
@@ -3462,8 +3467,8 @@ JS;
 		/**
 		 * Purify the testimonial field
 		 **/
-		if (!class_exists(HTMLPurifier)) {
-			require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.auto.php';
+		if (!class_exists('HTMLPurifier')) {
+			require_once HMS_TESTIMONIALS . 'HTMLPurifier/HTMLPurifier.standalone.php';
 		}
 
 		$config = HTMLPurifier_Config::createDefault();
@@ -3471,8 +3476,8 @@ JS;
 		/**
 		 * Just in case some users can't use the cache, kill it for all
 		 **/
-		$config->set('Core', 'DefinitionCache', null);
-		$config->set('URI', 'AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+		$config->set('Cache.DefinitionImpl', null);
+		$config->set('URI.AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
 		$purifier = new HTMLPurifier($config);
 
 

@@ -13,6 +13,8 @@ Display your customer testimonials on pages or posts. Use groups to organize and
 
 == Description ==
 
+** Now with Akismet anti-spam integration! **
+
 * Create your own templates using drag and drop allowing you to display testimonials in different ways through your site.
 * Custom fields! You can now add additional fields to your testimonials.
 * You can now add an image to your testimonial. This allows you show a picture of the person who submitted the testimonial.
@@ -72,6 +74,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+= 2.1.11 =
+* Added multiple anti spam measures for the shortcode form.
+* Fixed a PHP notice in the templates screen.
+* Moved jquery-ui to only show on testimonial pages
 
 = 2.1.10 =
 * The js.php script now allows you to load rotating testimonials.

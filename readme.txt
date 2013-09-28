@@ -1,6 +1,6 @@
 === Plugin Name ===
 Contributors: kreitje
-Donate link: hitmyserver.com/wordpress-plugins/
+Donate link: http://hitmyserver.com/wordpress-plugins-donations/
 Tags: testimonials, reviews, client reviews, what they are saying
 Requires at least: 3.0.1
 Tested up to: 3.6

@@ -841,7 +841,7 @@ JS;
 
 			<p>This plugin allows you to add customer testimonials to your site in an easy to manage way. HMS Testimonials offers 3 shortcodes with multiple options and 2 widgets.</p>
 			<br />
-			<h4 align="center"><strong>Do you enjoy this plugin?</strong> <a style="color:red;" href="https://portal.hitmyserver.com/clients/cart.php?a=add&pid=12" target="_blank">Consider purchasing a thank you license!</a></h4>
+			<h4 align="center"><strong>Do you enjoy this plugin?</strong> <a style="color:red;" href="http://hitmyserver.com/wordpress-plugins-donations/" target="_blank">Consider sending us a donation to show your support!</a></h4>
 			<br />
 
 			<div id="accordion">

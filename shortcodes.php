@@ -4,6 +4,28 @@ function hms_testimonials_form( $atts ) {
 	global $wpdb, $blog_id, $current_user;
 	get_currentuserinfo();
 
+	/**
+	 * Check if the Akismet plugin is enabled and valid. If so, use that.
+	 **/
+	$use_akismet = false;
+	if ( function_exists( 'akismet_verify_key' ) && function_exists( 'akismet_get_key')) {
+		
+		$key = akismet_get_key();
+		if ($key !== false && $key != '') {
+			$response = akismet_verify_key($key);
+			if ($response == 'valid')
+				$use_akismet = true;
+		}
+
+		if ($use_akismet)
+			require_once HMS_TESTIMONIALS . 'akismet.php';
+	}
+
+
+	if (isset($_SESSION['hms_testimonials_submitted']))
+		return '<div class="hms_testimonial_success">' . __('Your testimonial has been submitted.', 'hms-testimonials' ) . '</div>';
+	
+
 
 	$settings = get_option('hms_testimonials');
 	$fields = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix."hms_testimonials_cf` WHERE `blog_id` = ".$blog_id." ORDER BY `name` ASC");
@@ -21,12 +43,16 @@ function hms_testimonials_form( $atts ) {
 
 		$errors = array();
 
+		if (isset($_POST['hms_testimonials_security_token']) && ($_POST['hms_testimonials_security_token'] != ''))
+			$errors[] = __('Invalid request.', 'hms-testimonials');
+
 		if (!isset($_POST['hms_testimonials_name']) || (($name = trim(@$_POST['hms_testimonials_name'])) == ''))
 			$errors[] = __('Please enter your name.', 'hms-testimonials' );
 
 		if (!isset($_POST['hms_testimonials_testimonial']) || (($testimonial = trim(@$_POST['hms_testimonials_testimonial'])) == ''))
 			$errors[] = __('Please enter your testimonial.', 'hms-testimonials' );
 
+		$email = '';
 		if ($field_count>0) {
 			foreach($fields as $f) {
 
@@ -39,6 +65,8 @@ function hms_testimonials_form( $atts ) {
 					case 'email':
 						if (isset($_POST['hms_testimonials_cf'][$f->id]) && ($_POST['hms_testimonials_cf'][$f->id] != '') && !filter_var($_POST['hms_testimonials_cf'][$f->id], FILTER_VALIDATE_EMAIL))
 							$errors[] = sprintf( __('Please enter a valid email for the %1$s field.', 'hms-testimonials'), $f->name );
+
+						$email = $_POST['hms_testimonials_cf'][$f->id];
 					break;
 				}
 
@@ -76,30 +104,47 @@ function hms_testimonials_form( $atts ) {
         	}
         }
 
-
 		if (count($errors)>0)
 			$ret .= '<div class="hms_testimonial_errors">'.join('<br />', $errors).'</div><br />';
-
 		else {
+			$is_spam = false;
 
+			if ($use_akismet) {
+				$akismet = new HMS_Testimonials_Akismet(get_option('home'), $key);
+				$akismet->setCommentAuthor( $name );
+
+				if ($email != '')
+					$akismet->setCommentAuthorEmail( $email );
+
+ 				if ($website != '')
+ 					$akismet->setCommentAuthorURL( $website );
+
+ 				$akismet->setCommentContent( $testimonial );
+ 				$akismet->setPermalink( get_permalink() );
+     			if($akismet->isCommentSpam())
+     				$is_spam = true;
+
+			}
 
 			$display_order = $wpdb->get_var("SELECT `display_order` FROM `".$wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 
-			$wpdb->insert($wpdb->prefix."hms_testimonials", 
-				array(
-					'blog_id' => $blog_id, 'user_id' => $current_user->ID, 'name' => strip_tags($name), 
-					'testimonial' => strip_tags($testimonial), 'display' => 0, 'display_order' => ($display_order+1),
-					'url' => $website, 'created_at' => date('Y-m-d h:i:s'), 'testimonial_date' => date('Y-m-d h:i:s')
-				)
-			);
+			if (!$is_spam) {
+				$wpdb->insert($wpdb->prefix."hms_testimonials", 
+					array(
+						'blog_id' => $blog_id, 'user_id' => $current_user->ID, 'name' => strip_tags($name), 
+						'testimonial' => strip_tags($testimonial), 'display' => 0, 'display_order' => ($display_order+1),
+						'url' => $website, 'created_at' => date('Y-m-d h:i:s'), 'testimonial_date' => date('Y-m-d h:i:s')
+					)
+				);
 
-			$id = $wpdb->insert_id;
+				$id = $wpdb->insert_id;
+			}
 
 			$e_message = '';
 			if ($field_count > 0) {
 				foreach($fields as $f) {
 
-					if (isset($_POST['hms_testimonials_cf'][$f->id])) {
+					if (isset($_POST['hms_testimonials_cf'][$f->id]) && !$is_spam) {
 						$wpdb->insert($wpdb->prefix."hms_testimonials_cf_meta", 
 							array(
 								'testimonial_id' => $id, 'key_id' => $f->id, 'value' => trim($_POST['hms_testimonials_cf'][$f->id])
@@ -117,6 +162,13 @@ function hms_testimonials_form( $atts ) {
 				$visitor_name = $current_user->user_login.' ';
 
 			$message = sprintf( __('%1$s as added a testimonial to your site %2$s', 'hms-testimonials' ), $visitor_name, get_bloginfo('name'))."\r\n\r\n";
+
+			if ($is_spam)
+				$message .= __('This message has been detected as spam by Akismet. It has ** NOT ** been saved to your database.', 'hms-testimonials')."\r\n\r\n";
+
+			if ($use_akismet)
+				$message .= sprintf( __('Spam Status: %1$s', 'hms-testimonials' ), (($is_spam) ? 'Spam' : 'Not Spam'))."\r\n";
+			
 			$message .= sprintf( __('Name: %1$s', 'hms-testimonials' ), $name)."\r\n";
 			$message .= sprintf( __('Website: %1$s', 'hms-testimonials' ), $website)."\r\n";
 			$message .= sprintf( __('Testimonial: %1$s', 'hms-testimonials' ), $testimonial)."\r\n";
@@ -124,10 +176,14 @@ function hms_testimonials_form( $atts ) {
 			$message .= $e_message;
 
 			$message .= "\r\n\r\n";
-			$message .= sprintf( __('View this testimonial at %1$s', 'hms-testimonials' ), admin_url('admin.php?page=hms-testimonials-view&id='.$id));
+
+			if (!$is_spam)
+				$message .= sprintf( __('View this testimonial at %1$s', 'hms-testimonials' ), admin_url('admin.php?page=hms-testimonials-view&id='.$id));
 
 			wp_mail(get_bloginfo('admin_email'), sprintf( __('New Visitor Testimonial Added to %1$s', 'hms-testimonials' ), get_bloginfo('name') ), $message);
-				
+			
+			$_SESSION['hms_testimonials_submitted'] = 1;
+
 			if (!isset($settings['guest_submission_redirect']) || ($settings['guest_submission_redirect'] == ''))
 				return '<div class="hms_testimonial_success">' . __('Your testimonial has been submitted.', 'hms-testimonials' ) . '</div>';
 			else
@@ -158,6 +214,7 @@ function hms_testimonials_form( $atts ) {
 	$ret .= <<<HTML
 <form method="post">
 {$nf}
+<input type="hidden" name="hms_testimonials_security_token" value="" />
 <input type="hidden" name="hms_testimonial" value="1" />
 	<table class="hms-testimonials-form">
 		<tr class="name required">

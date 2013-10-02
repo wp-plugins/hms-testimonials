@@ -74,6 +74,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.1.12 =
+* Fixed a bug where the session may be started after output thus throwing an error.
+
 = 2.1.11 =
 * Added multiple anti spam measures for the shortcode form.
 * Fixed a PHP notice in the templates screen.

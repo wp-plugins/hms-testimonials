@@ -75,6 +75,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.2 =
+* Fixed a bug where the tables were not being created in a multi site.
+
 = 2.2.1 =
 * I forgot to add rotator.js to svn so it didn't get uploaded
 

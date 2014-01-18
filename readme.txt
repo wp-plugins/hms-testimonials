@@ -75,6 +75,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.4 =
+* You can not set the unit measurement of pixels or percent for the height and width of images.
+* Added filters to override the custom field text
+
 = 2.2.3 =
 * Added new setting to redirect the hms_testimonials_form shortcode to another page on submission.
 * Added redirect_url attribute to hms_testimonials_form to override the setting.

@@ -75,6 +75,12 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.7 =
+* Added list of groups a testimonial is in on the main testimonials page
+* Added visual editor to author fields
+* Added edit links to testimonials on shortcode if you are a moderator
+* Added the following filters to alter the shortcode pagination links: hms_testimonials_pagination_link, hms_testimonials_pagination_next, hms_testimonials_pagination_previous, and hms_testimonials_pagination_current
+
 = 2.2.6 =
 * Added option to not append the testimonial ID to the default read more link.
 

@@ -473,7 +473,7 @@ function hms_testimonials_show( $atts ) {
 		if (count($get)<1)
 			return '';
 
-		$ret = '<div class="hms-testimonial-container hms-testimonial-single hms-testimonial-'.$get['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
+		$ret = '<div id="hms_testimonial_' . $get['id'] . '"  class="hms-testimonial-container hms-testimonial-single hms-testimonial-'.$get['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
 			$ret .= HMS_Testimonials::template($template, $get, (int)$word_limit, (int)$char_limit, $options);
 		$ret .= '</div>';
 		
@@ -510,7 +510,7 @@ function hms_testimonials_show( $atts ) {
 
 		foreach($get as $g) {
 
-			$ret .= '<div class="hms-testimonial-container hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
+			$ret .= '<div id="hms_testimonial_' . $g['id'] . '" class="hms-testimonial-container hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
 
 				$ret .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit, $options);
 
@@ -606,7 +606,7 @@ function hms_testimonials_show_rotating( $atts ) {
 	if ($show_links && $show_links != "false" && ($link_position == 'top' || $link_position == 'both'))
 		$return .= '<div class="controls"><a href="#" class="prev">'.$link_prev.'</a> <a href="#" class="playpause '.$play_pause_class.'">'.$play_pause_init.'</a> <a href="#" class="next">'.$link_next.'</a></div>';
 
-		$return .= '<div class="hms-testimonial-container hms-testimonial-'.$get[0]['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
+		$return .= '<div id="hms_testimonial_rotating_' . $get[0]['id'] . '"  class="hms-testimonial-container hms-testimonial-'.$get[0]['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
 						
 		$return .= HMS_Testimonials::template($template, $get[0], (int)$word_limit, (int)$char_limit, $options);
 
@@ -619,7 +619,7 @@ function hms_testimonials_show_rotating( $atts ) {
 	$return .= '<div class="hms-testimonial-items" style="display:none;">';
 		
 	foreach($get as $g) {
-		$return .= '<div class="hms-testimonial-item hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
+		$return .= '<div id="hms_testimonial_rotating' . $g['id'] . '"  class="hms-testimonial-item hms-testimonial-'.$g['id'].' hms-testimonial-template-'.$template.'" itemprop="review" itemscope itemtype="http://schema.org/Review">';
 		
 			$return .= HMS_Testimonials::template($template, $g, (int)$word_limit, (int)$char_limit, $options);
 

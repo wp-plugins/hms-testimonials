@@ -3786,11 +3786,10 @@ JS;
 				break;
 				default:
 
-					$custom_fields[$k] = $purifier->purify($custom_fields[$k]);
-
 					if (isset($custom_fields[(int)$k])) {
-						$lower = strtolower($custom_fields_names[$k]);
-						$builder .= '<div class="cf-' . $lower . '">'.apply_filters('hms_testimonials_cf_' . $lower, $custom_fields[$k], $testimonial).'</div>';
+						$custom_fields[$k] = $purifier->purify($custom_fields[$k]);
+						$lower = strtolower($custom_fields_names[(int)$k]);
+						$builder .= '<div class="cf-' . $lower . '">'.apply_filters('hms_testimonials_cf_' . $lower, $custom_fields[(int)$k], $testimonial).'</div>';
 
 					}
 

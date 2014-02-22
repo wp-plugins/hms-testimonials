@@ -75,6 +75,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.8 =
+* Fixed a few undefined index warnings
+* Added ID attributes to the testimonials
+
 = 2.2.7 =
 * Added list of groups a testimonial is in on the main testimonials page
 * Added visual editor to author fields

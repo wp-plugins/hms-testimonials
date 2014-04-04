@@ -128,6 +128,13 @@ function hms_testimonials_form( $atts ) {
 			
 		}
 
+		$my_rating = ( isset($_POST['hms_testimonials_rating'] ) ) ? (int) $_POST['hms_testimonials_rating'] : 0;
+		if ($settings['form_show_rating'] == 1 && ( $my_rating < 1 || $my_rating > 5) ) {
+			$errors[] = apply_filters('hms_testimonials_sc_error_rating', __('Please select a rating.', 'hms-testimonials') );
+		if ($settings['form_show_rating'] == 0)
+			$my_rating = 0;
+		}
+
 		if ($settings['use_recaptcha'] == 1) { 
 			$resp = hms_tesitmonial_recaptcha_check_answer($settings['recaptcha_privatekey'], $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 
@@ -142,6 +149,9 @@ function hms_testimonials_form( $atts ) {
         		}
         	}
         }
+
+        if( $settings['use_captcha_plugin'] == 1 &&  function_exists( 'cptch_check_custom_form' ) && cptch_check_custom_form() !== true ) 
+        	$errors[] = apply_filters('hms_testimonials_sc_error_captcha', __('You entered an incorrect captcha. Please try again.', 'hms-testimonials' ) );
 
 		if (count($errors)>0)
 			$ret .= '<div class="hms_testimonial_errors">'.join('<br />', $errors).'</div><br />';
@@ -206,7 +216,8 @@ function hms_testimonials_form( $atts ) {
 						'blog_id' => $blog_id, 'user_id' => $current_user->ID, 'name' => strip_tags($name), 
 						'testimonial' => strip_tags($testimonial), 'display' => 0, 'display_order' => ($display_order+1),
 						'image' => $attach_id,
-						'url' => $website, 'created_at' => date('Y-m-d h:i:s'), 'testimonial_date' => date('Y-m-d h:i:s')
+						'url' => $website, 'created_at' => date('Y-m-d h:i:s'), 'testimonial_date' => date('Y-m-d h:i:s'),
+						'rating' => $my_rating
 					)
 				);
 
@@ -246,6 +257,9 @@ function hms_testimonials_form( $atts ) {
 			
 			$message .= sprintf( __('Name: %1$s', 'hms-testimonials' ), $name)."\r\n";
 			$message .= sprintf( __('Website: %1$s', 'hms-testimonials' ), $website)."\r\n";
+			if ($settings['form_show_rating'] == 1)
+				$message .= sprintf( __('Rating: %1$s', 'hms-testimonials' ), $my_rating)."\r\n";
+
 			$message .= sprintf( __('Testimonial: %1$s', 'hms-testimonials' ), $testimonial)."\r\n";
 
 			$message .= $e_message;
@@ -290,6 +304,7 @@ function hms_testimonials_form( $atts ) {
 	$website_text = apply_filters('hms_testimonials_sc_website', __('Website', 'hms-testimonials' ));
 	$testimonial_text = apply_filters('hms_testimonials_sc_testimonial', __('Testimonial', 'hms-testimonials' ));
 	$image_text = apply_filters('hms_testimonials_sc_image', __('Profile Picture', 'hms-testimonials'));
+	$rating_text = apply_filters('hms_testimonials_sc_rating', __('Star Rating', 'hms-testimonials'));
 	$submit_text = apply_filters('hms_testimonials_sc_submit', __('Submit Testimonial', 'hms-testimonials' ));
 	$nf = wp_nonce_field('hms-testimonials-form', '_wpnonce', true, false);
 
@@ -300,31 +315,46 @@ function hms_testimonials_form( $atts ) {
 <input type="hidden" name="hms_testimonial" value="1" />
 	<table class="hms-testimonials-form">
 		<tr class="name required">
-			<td>{$name_text}</td>
-			<td><input type="text" class="hms_testimonials_name" name="hms_testimonials_name" value="{$name}" />
+			<td class="hms-testimonials-label">{$name_text}</td>
+			<td><input type="text" class="hms_testimonials_name" name="hms_testimonials_name" value="{$name}" /></td>
 		</tr>
 HTML;
 
 if ($settings['form_show_url'] == 1) {
 	$ret .= <<<HTML
 		<tr class="website">
-			<td>{$website_text}</td>
-			<td><input type="text" class="hms_testimonials_website" name="hms_testimonials_website" value="{$website}" />
+			<td class="hms-testimonials-label">{$website_text}</td>
+			<td><input type="text" class="hms_testimonials_website" name="hms_testimonials_website" value="{$website}" /></td>
 		</tr>
 HTML;
 }
 if ($settings['form_show_upload'] == 1) {
 	$ret .= <<<HTML
 		<tr class="image">
-			<td>{$image_text}</td>
-			<td><input type="file" class="hms_testimonials_image" name="hms_testimonials_image" value="" />
+			<td class="hms-testimonials-label">{$image_text}</td>
+			<td><input type="file" class="hms_testimonials_image" name="hms_testimonials_image" value="" /></td>
+		</tr>
+HTML;
+}
+
+if ($settings['form_show_rating'] == 1) {
+	$ret .= <<<HTML
+		<tr class="rating required">
+			<td class="hms-testimonials-label">{$rating_text}</td>
+			<td><select name="hms_testimonials_rating">
+					<option value="5">5</option>
+					<option value="4">4</option>
+					<option value="3">3</option>
+					<option value="2">2</option>
+					<option value="1">1</option>
+				</select></td>
 		</tr>
 HTML;
 }
 
 	$ret .= <<<HTML
 		<tr class="testimonial required">
-			<td valign="top">{$testimonial_text}</td>
+			<td class="hms-testimonials-label" valign="top">{$testimonial_text}</td>
 			<td><textarea name="hms_testimonials_testimonial" class="hms_testimonials_testimonial" rows="5" style="width:99%;">{$testimonial}</textarea></td>
 		</tr>
 HTML;
@@ -335,7 +365,7 @@ HTML;
 			$name = strtolower( str_replace(' ', '_', $f->name) );
 			$ret .= '
 			<tr class="cf-'.$name.(($f->isrequired == 1) ? ' required' : '').'">
-				<td valign="top">'.apply_filters( 'hms_testimonials_cf_text_' . $f->id, $f->name).'</td>
+				<td class="hms-testimonials-label" valign="top">'.apply_filters( 'hms_testimonials_cf_text_' . $f->id, $f->name).'</td>
 				<td>';
 
 				$value = '';
@@ -362,14 +392,21 @@ HTML;
 
 	if ($settings['use_recaptcha'] == 1) { 
 		$ret .= '<tr>
-					<td> </td>
+					<td class="hms-testimonials-label"> </td>
 					<td>'.hms_tesitmonial_recaptcha_get_html($settings['recaptcha_publickey'], null).'</td>
 				</tr>';
 	}
 
+	if ($settings['use_captcha_plugin'] == 1 && function_exists( 'cptch_display_captcha_custom' ) ) {
+		$ret .= '<tr class="required captcha-plugin" valign="top">
+					<td class="hms-testimonials-label">Captcha</td>
+					<td><input type="hidden" name="cntctfrm_contact_action" value="true" />' . cptch_display_captcha_custom() . '</td>
+				</tr>';	
+	}
+
 	$ret .= <<<HTML
-		<tr>
-			<td>&nbsp;</td>
+		<tr class="hms-testimonials-submit">
+			<td class="hms-testimonials-label">&nbsp;</td>
 			<td><input type="submit" value="{$submit_text}" /></td>
 		</tr>
 	</table>

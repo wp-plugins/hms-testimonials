@@ -75,6 +75,14 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.9 =
+* Added the ability to use the Captcha plugin with HMS Testimonials
+* Added a setting to pick the image size to use when displaying a testimonial author image.
+* Added 5 star rating system
+* Increased microdata usage on the template
+* Fixed undefined index on template page
+* Added the testimonial author as an alt tag to the testimonial image
+
 = 2.2.8 =
 * Fixed a few undefined index warnings
 * Added ID attributes to the testimonials

@@ -3,7 +3,7 @@
 Plugin Name: HMS Testimonials
 Plugin URI: http://hitmyserver.com
 Description: Displays your customer testimonials or rotate them. Utilize templates to customize how they are shown.
-Version: 2.2.8
+Version: 2.2.9
 Author: HitMyServer LLC
 Author URI: http://hitmyserver.com
 */
@@ -18,7 +18,7 @@ require_once HMS_TESTIMONIALS . 'admin.php';
 /**
  * What database version of the plugin are we on
  **/
-$hms_testimonials_db_version = 13;
+$hms_testimonials_db_version = 14;
 
 
 add_action('wp_enqueue_scripts', create_function('', 'wp_enqueue_script(\'hms-testimonials-rotator\', plugins_url(\'rotator.js\', __FILE__), array( \'jquery\') );'));

@@ -75,6 +75,11 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.10 =
+* Only show fields that are marked "Show on form"
+* Added aggregate review rating
+* Fixed spelling on email
+
 = 2.2.9 =
 * Added the ability to use the Captcha plugin with HMS Testimonials
 * Added a setting to pick the image size to use when displaying a testimonial author image.

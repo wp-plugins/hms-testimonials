@@ -3663,6 +3663,34 @@ JS;
 		<?php
 	}
 
+	public static function injectAggregate() {
+		global $wpdb, $blog_id, $hms_shown_rating_aggregate;
+
+		if ( $hms_shown_rating_aggregate ) return true;
+
+
+		$getAverage = $wpdb->get_row("SELECT AVG(rating) AS avg, COUNT(*) AS num_ratings FROM `".$wpdb->prefix."hms_testimonials` WHERE `blog_id` = ".(int)$blog_id ." AND `rating` != 0", ARRAY_A);
+
+		$hms_shown_rating_aggregate = true;
+
+		if ( $getAverage['num_ratings'] > 0 ) {
+
+			$avg = round( $getAverage['avg'], 2);
+			$ratings = $getAverage['num_ratings'];
+
+			?>
+			<div style="display:none;" itemscope itemtype="http://data-vocabulary.org/Review-aggregate">
+    			<span itemprop="itemreviewed"><?php echo get_bloginfo('blogname') ?></span>
+        		<span itemprop="rating" itemscope itemtype="http://data-vocabulary.org/Rating">
+      				<span itemprop="average"><?php echo $avg; ?></span> out of <span itemprop="best">5</span>
+      			</span> based on <span itemprop="votes"><?php echo $ratings; ?></span> ratings.
+    				<span itemprop="count"><?php echo $ratings; ?></span> user reviews.
+  			</div>    
+			<?php
+		}
+		
+	}
+
 	/**
 	 * Takes the template id and loads the testimonial in it.
 	 * If the template does not exist it shows the source (name) and testimonial as a fall back.
@@ -3672,7 +3700,8 @@ JS;
 
 	public static function template($template_id, $testimonial, $word_limit = 0, $char_limit = 0, $options = array()) {
 		global $wpdb, $blog_id;
-
+		
+		self::injectAggregate();
 		/**
 		 * Purify the testimonial field
 		 **/

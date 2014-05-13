@@ -3,7 +3,7 @@ Contributors: kreitje
 Donate link: http://hitmyserver.com/wordpress-plugins-donations/
 Tags: testimonials, reviews, client reviews, what they are saying
 Requires at least: 3.5
-Tested up to: 3.8
+Tested up to: 3.9.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -74,6 +74,13 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.2.11 =
+* Added setting to automatically approve testimonials
+* Added a link to the admin email to automatically approve testimonials without logging in
+* Use Akisment static methods. Akismet 3 deprecated using their functions.
+* Added an option to allow logged (non moderator users) to add their testimonial to a group
+* Adjusted add/edit testimonial to allow non moderator users to add their testimonial to one or more groups if enabled
 
 = 2.2.10 =
 * Only show fields that are marked "Show on form"

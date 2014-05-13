@@ -63,6 +63,8 @@ class HMS_Testimonials {
 			'form_show_rating' => 0,
 			'redirect_url' => '',
 			'wp_image_size' => 'large',
+			'moderate_form_submission' => 1,
+			'user_role_can_select_group' => 0,
 		);
 
 		$this->options = array_merge($defaults, $current_options);
@@ -115,8 +117,8 @@ class HMS_Testimonials {
 	}
 
 	public function admin_menus() {
-		
-		if ($this->user_role_num >= $this->options['roleorders'][$this->options['role']]) {
+
+		if ($this->user_role_num >= $this->options['roleorders'][$this->options['role']] || $this->is_moderator() ) {
 			$hook = add_menu_page('HMS Testimonials', 'Testimonials', $this->user_role, 'hms-testimonials', array($this, 'admin_page'));
 
 			add_submenu_page('hms-testimonials', 'Add New Testimonial', '&nbsp;&nbsp;Add New', $this->user_role, 'hms-testimonials-addnew', array($this, 'testimonial_new_page'));
@@ -127,6 +129,7 @@ class HMS_Testimonials {
 		$settings_role = 'administrator';
 
 		if ($this->is_moderator()) {
+
 			add_submenu_page('hms-testimonials', 'Groups', 'Groups', $this->user_role, 'hms-testimonials-groups', array($this, 'groups_page'));
 
 			add_submenu_page(null, 'Add New Group', '&nbsp;&nbsp;Add New', $this->user_role, 'hms-testimonials-addnewgroup', array($this, 'groups_new_page'));
@@ -354,6 +357,8 @@ JS;
 
 			$options['wp_image_size'] = (isset($_POST['wp_image_size']) && in_array( $_POST['wp_image_size'], $image_sizes) ) ? $_POST['wp_image_size'] : $image_sizes[0];
 
+			$options['moderate_form_submission'] = (isset($_POST['moderate_form_submission']) && $_POST['moderate_form_submission'] == '1') ? 1 : 0;
+
 			update_option('hms_testimonials', $options);
 			$this->options = $options;
 			$updated = 1;
@@ -459,22 +464,31 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">12. Show website field on the hms_testimonials_form?</th>
+								<th scope="row">12. Require approval of user submitted testimonials</th>
+								<td><input type="checkbox" name="moderate_form_submission" value="1" <?php if ($this->options['moderate_form_submission']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+
+							<tr>
+								<td colspan="2">It is recommended you leave this checked otherwise any user submitted testimonial will show up to include spam and malicious testimonials.</td>
+							</tr>
+
+							<tr>
+								<th scope="row">13. Show website field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_url" value="1" <?php if ($this->options['form_show_url']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">13. Show image upload field on the hms_testimonials_form?</th>
+								<th scope="row">14. Show image upload field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_upload" value="1" <?php if ($this->options['form_show_upload']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">13. Show 5 star rating on the hms_testimonials_form?</th>
+								<th scope="row">15. Show 5 star rating on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_rating" value="1" <?php if ($this->options['form_show_rating']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">14. Redirect to this page after a visitor submits a testimonial.</th>
+								<th scope="row">16. Redirect to this page after a visitor submits a testimonial.</th>
 								<td><input type="text" name="redirect_url" value="<?php echo $this->options['redirect_url']; ?>" /></td>
 							</tr>
 
@@ -570,6 +584,8 @@ JS;
 			$options['resetapproval'] = (isset($_POST['resetapproval']) && $_POST['resetapproval'] == '1') ? 1 : 0;
 			$options['moderators_can_access_settings'] = (isset($_POST['moderators_can_access_settings']) && $_POST['moderators_can_access_settings'] == '1') ? 1 : 0;
 			$options['js_load'] = (isset($_POST['js_load'])) && ($_POST['js_load'] == 1) ? 1 : 0;
+			$options['user_role_can_select_group'] = (isset($_POST['user_role_can_select_group'])) && ($_POST['user_role_can_select_group'] == 1) ? 1 : 0;
+			
 
 			$x = count($_POST['roleorder']);
 			$order = array();
@@ -656,13 +672,19 @@ JS;
 									</select>
 								</td>
 							</tr>
+
 							<tr>
-								<th scope="row">3. Number of testimonials a non moderator can create:</th>
+								<th scope="row">3. Allow these users to select what group their testimonial is in?</th>
+								<td><input type="checkbox" name="user_role_can_select_group" value="1" <?php if ($this->options['user_role_can_select_group']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+
+							<tr>
+								<th scope="row">4. Number of testimonials a non moderator can create:</th>
 								<td><input type="text" name="num_users_can_create" value="<?php echo $this->options['num_users_can_create']; ?>" size="3" /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">4. Minimum role a user can mark their testimonial displayed:</th>
+								<th scope="row">5. Minimum role a user can mark their testimonial displayed:</th>
 								<td>
 									<select name="autoapprove">
 										<?php foreach($this->options['roleorders'] as $v => $i) {
@@ -672,15 +694,15 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">5. If a user is below the role level in option 4, set displayed field to <strong>NO</strong> when that user changes or updates their testimonial?</th>
+								<th scope="row">6. If a user is below the role level in option 4, set displayed field to <strong>NO</strong> when that user changes or updates their testimonial?</th>
 								<td><input type="checkbox" name="resetapproval" value="1" <?php if ($this->options['resetapproval']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">6. Moderators can access the settings page?</th>
+								<th scope="row">7. Moderators can access the settings page?</th>
 								<td><input type="checkbox" name="moderators_can_access_settings" value="1" <?php if ($this->options['moderators_can_access_settings']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">7. Character Set/Collation<br />
+								<th scope="row">8. Character Set/Collation<br />
 									<strong>Note:</strong> Changing this will modify your tables.</th>
 								<td><select name="collation">
 									<?php 
@@ -692,7 +714,7 @@ JS;
 							</tr>
 							<tr>
 								<th scope="row">
-									8. Allow the use of loading testimonials via<br />
+									9. Allow the use of loading testimonials via<br />
 									<strong><?php echo plugins_url( '/js.php' , __FILE__ ); ?></strong>?<br />
 									<a href="<?php echo admin_url('admin.php?page=hms-testimonials-help&active=5'); ?>">Read About It</a>
 								</th>
@@ -1342,7 +1364,7 @@ JS;
 				}
 
 
-				if ($this->is_moderator()) {
+				if ($this->is_moderator() || $this->options['user_role_can_select_group'] == 1) {
 					if (isset($_POST['groups']) && is_array($_POST['groups'])) {
 						foreach($_POST['groups'] as $gid) {
 							if (isset($groups[$gid])) {
@@ -1504,7 +1526,7 @@ JS;
 
 					<div class="postbox-container" id="postbox-container-1">
 						<div id="side-sortables">
-						<?php if ($this->is_moderator()) { ?>
+						<?php if ($this->is_moderator() || $this->options['user_role_can_select_group'] == 1) { ?>
 							<div class="postbox">
 								<h3><label for="groups">Groups:</label></h3>
 								<select name="groups[]" multiple="multiple" style="width:99%;" id="groups">
@@ -1728,6 +1750,36 @@ JS;
 					}
 				}
 
+				if (!$this->is_moderator() || $this->options['user_role_can_select_group'] == 1) {
+					if (isset($_POST['groups']) && is_array($_POST['groups'])) {
+
+						$del_groups = $my_groups;
+						foreach($_POST['groups'] as $gid) {
+
+							if (isset($groups[$gid])) {
+								
+								if (!isset($my_groups[$gid])) {
+									
+									$this->wpdb->insert($this->wpdb->prefix."hms_testimonials_group_meta", array('testimonial_id' => $get_testimonial['id'], 'group_id' => $gid));
+									$new_groups[$gid] = $gid;
+									
+								} else {
+									$new_groups[$gid] = $gid;
+									unset($del_groups[$gid]);
+								}
+
+							}
+						}
+
+						foreach($del_groups as $did)
+							$this->wpdb->query("DELETE FROM `".$this->wpdb->prefix."hms_testimonials_group_meta` WHERE `testimonial_id` = ".(int)$get_testimonial['id']." AND `group_id` = ".(int)$did);
+					} else {
+						$this->wpdb->query("DELETE FROM `".$this->wpdb->prefix."hms_testimonials_group_meta` WHERE `testimonial_id` = ".(int)$get_testimonial['id']);
+					}
+
+					$my_groups = $new_groups;
+				}
+
 				if (!$this->is_moderator()) {
 					$message = $this->current_user->user_login.' has updated their testimonial on '.get_bloginfo('name')."\r\n\r\n";
 
@@ -1749,39 +1801,6 @@ JS;
 					$message .= 'View this testimonial at '.admin_url('admin.php?page=hms-testimonials-view&id='.$get_testimonial['id']);
 
 					wp_mail(get_bloginfo('admin_email'), 'Updated Testimonial Added to '.get_bloginfo('name'), $message);
-				
-
-				} else {
-
-
-					if (isset($_POST['groups']) && is_array($_POST['groups'])) {
-
-						$del_groups = $my_groups;
-						foreach($_POST['groups'] as $gid) {
-
-							if (isset($groups[$gid])) {
-								
-								if (!isset($my_groups[$gid])) {
-									
-									$this->wpdb->insert($this->wpdb->prefix."hms_testimonials_group_meta", array('testimonial_id' => $get_testimonial['id'], 'group_id' => $gid));
-									$new_groups[$gid] = $gid;
-									
-								} else {
-									$new_groups[$gid] = $gid;
-									unset($del_groups[$gid]);
-								}
-
-							}
-						}
-
-
-						foreach($del_groups as $did)
-							$this->wpdb->query("DELETE FROM `".$this->wpdb->prefix."hms_testimonials_group_meta` WHERE `testimonial_id` = ".(int)$get_testimonial['id']." AND `group_id` = ".(int)$did);
-					} else {
-						$this->wpdb->query("DELETE FROM `".$this->wpdb->prefix."hms_testimonials_group_meta` WHERE `testimonial_id` = ".(int)$get_testimonial['id']);
-					}
-
-					$my_groups = $new_groups;
 
 				}
 				$added = 1;
@@ -1939,7 +1958,7 @@ JS;
 
 					<div class="postbox-container" id="postbox-container-1">
 						<div id="side-sortables">
-						<?php if ($this->is_moderator()) { ?>
+						<?php if ($this->is_moderator() || $this->options['user_role_can_select_group'] == 1) { ?>
 						<div class="postbox">
 							<h3><label for="groups">Groups:</label></h3>
 							<select name="groups[]" multiple="multiple" style="width:99%;" id="groups">

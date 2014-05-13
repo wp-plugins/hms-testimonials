@@ -31,6 +31,7 @@ function hms_testimonials_install() {
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 			display_order int(11) DEFAULT 0 NOT NULL,
 			display int(1) DEFAULT 1 NOT NULL,
+			autoapprove_token VARCHAR(255) DEFAULT '' NOT NULL,
 			UNIQUE KEY id (id)
 		);";
 		$sql_2 = "CREATE TABLE $table_name_2 (

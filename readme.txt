@@ -75,6 +75,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.15 =
+* Fix bug where pause / play buttons weren't working on hover
+
 = 2.2.14 =
 * Pause the rotating testimonials when you hover over them
 

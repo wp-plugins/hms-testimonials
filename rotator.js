@@ -51,25 +51,26 @@ HMSTestimonialRotate.prototype = {
 
 		obj.rotator.find('.controls .playpause').text( obj.playText );
 
-		obj.rotator.find('.controls .prev').click(function() {
+		obj.rotator.find('.controls .prev').click(function(e) {
+			e.preventDefault();
 			obj.prev();
-			return false;
 		});
 
-		obj.rotator.find('.controls .next').click(function() {
+		obj.rotator.find('.controls .next').click(function(e) {
+			e.preventDefault();
 			obj.next();
-			return false;
 		});
 
-		obj.rotator.find('.controls .playpause').click(function() {
+		obj.rotator.find('.controls .playpause').click(function(e) {
+			e.preventDefault();
 
-			if ( obj.isplaying == 1 ) {
+			if ( obj.isplaying == 1 && obj.hoverpause == 0 ) {
 
 				obj.pause();
 				obj.isplaying = 0;
 				jQuery(this).text( obj.playText ).removeClass('pause').addClass('play');
 
-			} else {
+			} else if ( obj.hoverpause == 0 ) {
 
 				obj.start();
 				obj.isplaying = 1;
@@ -77,13 +78,12 @@ HMSTestimonialRotate.prototype = {
 
 			}
 
-			return false;
+			
 		});
 
-		obj.rotator.hover(function() {
+		obj.rotator.find('.hms-testimonial-container').hover(function() {
 
 			if ( obj.isplaying == 1 ) {
-				console.log('hi is playing');
 				obj.pause();
 				obj.isplaying = 0;
 				obj.hoverpause = 1;

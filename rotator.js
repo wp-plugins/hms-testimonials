@@ -9,6 +9,7 @@ function HMSTestimonialRotate(el) {
 	this.seconds = 5000;
 	this.pauseText = 'Pause';
 	this.playText = 'Play';
+	this.hoverpause = 0;
 
 	var pause_text = el.attr('data-pause-text'),
 		play_text = el.attr('data-play-text'),
@@ -77,6 +78,25 @@ HMSTestimonialRotate.prototype = {
 			}
 
 			return false;
+		});
+
+		obj.rotator.hover(function() {
+
+			if ( obj.isplaying == 1 ) {
+				console.log('hi is playing');
+				obj.pause();
+				obj.isplaying = 0;
+				obj.hoverpause = 1;
+			}
+
+		}, function() {
+
+			if ( obj.isplaying == 0 && obj.hoverpause == 1 ) {
+				obj.start();
+				obj.isplaying = 1;
+				obj.hoverpause = 0;
+			}
+
 		});
 
 	},
@@ -162,6 +182,8 @@ HMSTestimonialRotate.prototype = {
 			}).fadeIn();
 
 			obj.index = obj.index + 1;
+
+			obj.isplaying = 1;
 			
 		}, obj.seconds);
 	},

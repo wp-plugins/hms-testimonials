@@ -75,6 +75,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.14 =
+* Pause the rotating testimonials when you hover over them
+
 = 2.2.13 =
 * Fixed a bug where testimonials were not showing up in for a group in the admin
 * Fixed a bug where groups were not saving for some users

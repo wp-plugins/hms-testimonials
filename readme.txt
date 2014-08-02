@@ -12,18 +12,19 @@ Display your customer testimonials on pages or posts. Use groups to organize and
 
 
 == Description ==
+HMS Testimonials is a testimonial and review plugin for your WordPress website. This plugin was built to cover a bunch of different use cases. Therefore it does not contain any styling to make it "look pretty". You are free to add any CSS to make your testimonials look good to your themes style.css. If you have a unique need and HMS Testimonials doesn't fit, open a [support thread](https://wordpress.org/support/plugin/hms-testimonials) and request what you need. While not all requests are added, many are.
 
-** Now with Akismet anti-spam integration! **
+A few of our unique features include:
 
 * Create your own templates using drag and drop allowing you to display testimonials in different ways through your site.
 * Custom fields! You can now add additional fields to your testimonials.
 * You can now add an image to your testimonial. This allows you show a picture of the person who submitted the testimonial.
+* Create groups to show different sets of testimonials on different pages. Testimonials can be added to multiple groups to reduce duplicates.
 
-HMS Testimonials offers you three shortcodes and two widgets. The first shortcode allows you to show all of your testimonials, a group of testimonials or just a single testimonial. The second shortcode allows you to show all or a group of testimonials that rotate through one at a time. Our third shortcode will display a form on a page or post to alow your visitors to submit testimonials. This shortcode can be placed inside a page or a blog post. If your theme uses sidebars you can use one or both of the widgets we offer. The first widget does the same as our shortcode. It shows all, a group or just one testimonial. Our second widget rotates through the selected testimonials one at a time. After a few seconds it will fade out the old and fade in the new testimonial.
+HMS Testimonials offers you three shortcodes and two widgets. The first shortcode allows you to show all of your testimonials, a group of testimonials or just a single testimonial. The second shortcode allows you to show all or a group of testimonials that rotate through one at a time. Our third shortcode will display a form on a page or post to allow your visitors to submit testimonials. 
 
-Create groups to display specific testimonials on different pages. You can change the order they are shown in using a simple drag and drop method.
+If your theme uses sidebars you can use the widgets we provide The first widget compliments the first shortcode by listing all, a group or just a single testimonial. Our second widget rotates through the selected testimonials one at a time. After a few seconds it will fade out the old testimonial and fade in the new one.
 
-Use the settings to allow access for your users to write testimonials about your company.
     
 
 == Installation ==
@@ -74,6 +75,10 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.2.16 =
+* Added section to the documentation on overriding the rating display.
+* Added an option to stop outputting br tags
 
 = 2.2.15 =
 * Fix bug where pause / play buttons weren't working on hover

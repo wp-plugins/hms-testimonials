@@ -65,6 +65,7 @@ class HMS_Testimonials {
 			'wp_image_size' => 'large',
 			'moderate_form_submission' => 1,
 			'user_role_can_select_group' => 0,
+			'nl2br_on_output' => 1,
 		);
 
 		$this->options = array_merge($defaults, $current_options);
@@ -353,6 +354,8 @@ JS;
 			$options['form_show_url'] = (isset($_POST['form_show_url']) && $_POST['form_show_url'] == '1') ? 1 : 0;
 			$options['form_show_upload'] = (isset($_POST['form_show_upload']) && $_POST['form_show_upload'] == '1') ? 1 : 0;
 			$options['form_show_rating'] = (isset($_POST['form_show_rating']) && $_POST['form_show_rating'] == '1') ? 1 : 0;
+			$options['nl2br_on_output'] = (isset($_POST['nl2br_on_output']) && $_POST['nl2br_on_output'] == '1') ? 1 : 0;
+
 			$options['redirect_url'] = (isset($_POST['redirect_url'])) ? strip_tags($_POST['redirect_url']) : '';
 
 			$options['wp_image_size'] = (isset($_POST['wp_image_size']) && in_array( $_POST['wp_image_size'], $image_sizes) ) ? $_POST['wp_image_size'] : $image_sizes[0];
@@ -399,10 +402,18 @@ JS;
 							</tr>
 
 							<tr>
-								<td colspan="2"><strong>Adding an image to your testimonials? Set the dimensions here.</strong></td>
+								<th scope="row">3. Add a &lt;br /&gt; for line breaks?</th>
+								<td><input type="checkbox" name="nl2br_on_output" value="1" <?php if ($this->options['nl2br_on_output']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">3. Width of the image</th>
+								<td colspan="2" style="padding-top:0px;">If you use a plugin that turns on paragraph tags you will want to uncheck this box.</td>
+							</tr>
+
+							<tr>
+								<td colspan="2"><strong style="font-size:15px;">Adding an image to your testimonials? Set the dimensions here.</strong></td>
+							</tr>
+							<tr>
+								<th scope="row">4. Width of the image</th>
 								<td><input type="text" name="image_width" value="<?php echo $this->options['image_width']; ?>" size="3" /> 
 									<select name="image_unit">
 										<option value="px" <?php if ($this->options['image_unit'] == 'px') echo 'selected="selected"'; ?>>px</option>
@@ -411,11 +422,11 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">4. Height of the image</th>
+								<th scope="row">5. Height of the image</th>
 								<td><input type="text" name="image_height" value="<?php echo $this->options['image_height']; ?>" size="3" /></td>
 							</tr>
 							<tr>
-								<th scope="row">5. WordPress Image Size</th>
+								<th scope="row">6. WordPress Image Size</th>
 								<td><select name="wp_image_size">
 										<?php foreach($image_sizes as $name): ?>
 											<option value="<?php echo $name; ?>" <?php if ($name == $this->options['wp_image_size']) echo ' selected="selected"'; ?>><?php echo $name; ?></option>
@@ -424,11 +435,11 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">6. Date format</th>
+								<th scope="row">7. Date format</th>
 								<td><input type="text" name="date_format" value="<?php echo $this->options['date_format']; ?>" size="10" /> <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help'); ?>#date_format" target="_blank">Read More</a></td>
 							</tr>
 							<tr>
-								<th scope="row">7. Use the following as a container for the testimonial text</th>
+								<th scope="row">8. Use the following as a container for the testimonial text</th>
 								<td><select name="testimonial_container">
 										<option value="div" <?php if ($this->options['testimonial_container'] == 'div') echo ' selected="selected"'; ?>>Div</option>
 										<option value="blockquote" <?php if ($this->options['testimonial_container'] == 'blockquote') echo ' selected="selected"'; ?>>Blockquote</option>
@@ -443,19 +454,19 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">8. "Read More" link</th>
+								<th scope="row">9. "Read More" link</th>
 								<td><input type="text" name="readmore_link" value="<?php echo $this->options['readmore_link']; ?>" /></td>
 							</tr>
 							<tr>
-								<th scope="row">9. "Read More" text</th>
+								<th scope="row">10. "Read More" text</th>
 								<td><input type="text" name="readmore_text" value="<?php echo $this->options['readmore_text']; ?>" size="10" /></td>
 							</tr>
 							<tr>
-								<th scope="row">10. <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help&active=7#append-testimonial-id'); ?>">Append the testimonial ID to the default "Read More" link?</a></th>
+								<th scope="row">11. <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help&active=7#append-testimonial-id'); ?>">Append the testimonial ID to the default "Read More" link?</a></th>
 								<td><input type="checkbox" name="readmore_append_testimonial_id" value="1" <?php if ($this->options['readmore_append_testimonial_id']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">11. Allow visitors to submit a testimonial once every x minutes. If set to 0, there is no limit.</th>
+								<th scope="row">12. Allow visitors to submit a testimonial once every x minutes. If set to 0, there is no limit.</th>
 								<td><input type="text" name="flood_limit" value="<?php echo $this->options['flood_limit']; ?>" size="10" /></td>
 							</tr>
 
@@ -464,7 +475,7 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">12. Require approval of user submitted testimonials</th>
+								<th scope="row">13. Require approval of user submitted testimonials</th>
 								<td><input type="checkbox" name="moderate_form_submission" value="1" <?php if ($this->options['moderate_form_submission']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
@@ -473,22 +484,22 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">13. Show website field on the hms_testimonials_form?</th>
+								<th scope="row">14. Show website field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_url" value="1" <?php if ($this->options['form_show_url']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">14. Show image upload field on the hms_testimonials_form?</th>
+								<th scope="row">15. Show image upload field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_upload" value="1" <?php if ($this->options['form_show_upload']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">15. Show 5 star rating on the hms_testimonials_form?</th>
+								<th scope="row">16. Show 5 star rating on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_rating" value="1" <?php if ($this->options['form_show_rating']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">16. Redirect to this page after a visitor submits a testimonial.</th>
+								<th scope="row">17. Redirect to this page after a visitor submits a testimonial.</th>
 								<td><input type="text" name="redirect_url" value="<?php echo $this->options['redirect_url']; ?>" /></td>
 							</tr>
 
@@ -1182,6 +1193,36 @@ JS;
 					</pre>
 
 					<br /><br />
+				</div>
+				<h3 id="hms_testimonials_rating">Override 5 Star Rating Display</h3>
+
+				<div>
+					<p>When you use the 5 star rating system, the output will default to:</p>
+					<pre>
+	&lt;span itemprop="ratingValue" data-rating="2"&gt;2&lt;/span&gt; out of 5&lt;/span&gt;
+					</pre>
+
+
+					<p>If you would like to override this to show stars or some other output you can use the following filter:</p>
+
+					<pre style="color:red;">
+	function hms_rating_override($text) {
+		/**
+		 * Detect the current rating
+		 */
+		$matches = null;
+		$getMatches = preg_match('/data-rating=\"(\d)\"/', $text, $matches);
+
+		if ( count($matches) == 2 ) {
+			$rating = $matches[1];
+
+			return '&lt;img src="/path/to/my/star/images/' . $rating . '.png" alt="' . $rating . ' out of 5 stars" itemprop="ratingValue" /&gt;';
+		}
+
+		return $text;
+	}
+	add_filter('hms_testimonials_system_rating', 'hms_rating_override');
+					</pre>
 				</div>
 
 				<h3 id="other">Other Help</h3>
@@ -3826,7 +3867,10 @@ JS;
 							$testimonial['testimonial'] = substr(strip_tags($testimonial['testimonial']), 0, $char_limit).$readmore;
 
 					} else {
-						$testimonial['testimonial'] = nl2br($testimonial['testimonial']);
+
+						if ( HMS_Testimonials::getInstance()->options['nl2br_on_output'] == 1 ) {
+							$testimonial['testimonial'] = nl2br($testimonial['testimonial']);
+						}
 					}
 
 					if (HMS_Testimonials::getInstance()->is_moderator() ) {
@@ -3841,6 +3885,11 @@ JS;
 						$builder .= '<blockquote class="testimonial" itemprop="description">'.apply_filters('hms_testimonials_system_testimonial', $testimonial['testimonial'], $testimonial).'</blockquote>';
 				break;
 				case 'system_source':
+					
+					if ( HMS_Testimonials::getInstance()->options['nl2br_on_output'] == 1 ) {
+						$testimonial['name'] = nl2br($testimonial['name']);
+					}
+
 					$testimonial['name'] = $purifier->purify($testimonial['name']);
 					$builder .= '<div class="author" itemprop="author">'.apply_filters('hms_testimonials_system_source', nl2br($testimonial['name']), $testimonial).'</div>';
 				break;

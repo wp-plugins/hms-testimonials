@@ -1470,7 +1470,7 @@ JS;
 				<div id="post-body" class="metabox-holder columns-2">
 					<div id="post-body-content">
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-author">
 							<h3><label for="name"><span style="color:red;">*</span> Source of Testimonial</label></h3>
 							<div class="inside">
 								<?php wp_editor(@$_POST['name'], 'name', array('textarea_name' => 'name', 'textarea_rows' => 10) ); ?>
@@ -1488,7 +1488,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-date">
 							<h3><label for="testimonial_date">Testimonial Date:</label></h3>
 							<div class="inside">
 								<input type="text" class="datepicker" id="testimonial_date" name="testimonial_date" size="50" value="<?php echo @$_POST['testimonial_date']; ?>" />
@@ -1496,7 +1496,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-website">
 							<h3><label for="website">Website:</label></h3>
 							<div class="inside">
 								<input type="text" id="website" name="url" size="50" value="<?php echo @$_POST['url']; ?>" />
@@ -1504,7 +1504,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-rating">
 							<h3><label for="rating">5 Star Rating:</label></h3>
 							<div class="inside">
 								<select name="rating" id="rating">
@@ -1518,7 +1518,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-testimonial">
 							<h3><label for="testimonial"><span style="color:red;">*</span> Testimonial:</label></h3>
 							<div class="inside">
 								<?php wp_editor(@$_POST['testimonial'], 'testimonial', array('textarea_name' => 'testimonial', 'textarea_rows' => 10) ); ?>
@@ -1532,7 +1532,7 @@ JS;
 
 							foreach($fields as $f) {
 								?>
-								<div class="stuffbox">
+								<div class="stuffbox" id="hms-testimonials-cf-<?php echo $f->id; ?>" class="hms-testimonials-cf">
 									<h3><label for="cf<?php echo $f->id; ?>"><?php if ($f->isrequired == 1) { ?><span style="color:red;">*</span><?php } ?> <?php echo $f->name; ?>:</label></h3>
 									<div class="inside">
 
@@ -1555,7 +1555,7 @@ JS;
 						}
 						?>
 						
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-readmore">
 							<h3><label for="readmore">Read More Page:</label></h3>
 							<div class="inside">
 								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo @$_POST['readmore']; ?>" />
@@ -1567,7 +1567,7 @@ JS;
 					</div>
 
 					<div class="postbox-container" id="postbox-container-1">
-						<div id="side-sortables">
+						<div id="side-sortables" id="hms-testimonials-groups">
 						<?php if ($this->is_moderator() || $this->options['user_role_can_select_group'] == 1) { ?>
 							<div class="postbox">
 								<h3><label for="groups">Groups:</label></h3>
@@ -1890,7 +1890,7 @@ JS;
 				<div id="post-body" class="metabox-holder columns-2">
 					<div id="post-body-content">
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-author">
 							<h3><label for="name">Name</label></h3>
 							<div class="inside">
 								<?php wp_editor( (!isset($_POST['name']) ? $get_testimonial['name'] : ((isset($name)) ? $name : $_POST['name'])), 'name', array('textarea_name' => 'name', 'textarea_rows' => 10) ); ?>
@@ -1908,7 +1908,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-date">
 							<h3><label for="testimonial_date">Testimonial Date:</label></h3>
 							<div class="inside">
 								<?php if ($get_testimonial['testimonial_date'] == '0/0/0000')
@@ -1919,7 +1919,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-website">
 							<h3><label for="website">Website:</label></h3>
 							<div class="inside">
 								<input type="text" id="website" name="url" size="50" value="<?php echo (!isset($_POST['url']) ? $get_testimonial['url'] : $_POST['url']); ?>" />
@@ -1927,7 +1927,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-rating">
 							<h3><label for="rating">5 Star Rating:</label></h3>
 							<div class="inside">
 								<select name="rating" id="rating">
@@ -1942,7 +1942,7 @@ JS;
 							</div>
 						</div>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-testimonial">
 							<h3><label for="testimonial">Testimonial:</label></h3>
 							<div class="inside">
 								<?php wp_editor((!isset($_POST['testimonial']) ? $get_testimonial['testimonial'] : (isset($testimonial) ? $testimonial : $_POST['testimonial'])), 'testimonial', array('textarea_name' => 'testimonial', 'textarea_rows' => 10) ); ?>
@@ -1956,7 +1956,7 @@ JS;
 
 							foreach($fields as $f) {
 								?>
-								<div class="stuffbox">
+								<div class="stuffbox" id="hms-testimonials-cf-<?php echo $f->id; ?>" class="hms-testimonials-cf">
 									<h3><label for="cf<?php echo $f->id; ?>"><?php if ($f->isrequired == 1) { ?><span style="color:red;">*</span><?php } ?> <?php echo $f->name; ?>:</label></h3>
 									<div class="inside">
 
@@ -1985,7 +1985,7 @@ JS;
 						}
 						?>
 
-						<div class="stuffbox">
+						<div class="stuffbox" id="hms-testimonials-readmore">
 							<h3><label for="readmore">Read More Page:</label></h3>
 							<div class="inside">
 								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo (!isset($_POST['readmore']) ? $get_testimonial['readmore'] : $_POST['readmore']); ?>" />
@@ -2001,7 +2001,7 @@ JS;
 					<div class="postbox-container" id="postbox-container-1">
 						<div id="side-sortables">
 						<?php if ($this->is_moderator() || $this->options['user_role_can_select_group'] == 1) { ?>
-						<div class="postbox">
+						<div class="postbox" id="hms-testimonials-groups">
 							<h3><label for="groups">Groups:</label></h3>
 							<select name="groups[]" multiple="multiple" style="width:99%;" id="groups">
 								<?php 

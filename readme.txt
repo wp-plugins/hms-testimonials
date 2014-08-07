@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.17 =
+* Added IDs to the fields on the add/edit testimonial screen inside the WordPress dashboard.
+
 = 2.2.16 =
 * Added section to the documentation on overriding the rating display.
 * Added an option to stop outputting br tags

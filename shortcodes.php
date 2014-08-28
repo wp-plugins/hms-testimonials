@@ -382,6 +382,7 @@ function hms_testimonials_form_submission() {
 
 		}
 
+		$e_message = '';
 		$display_order = $wpdb->get_var("SELECT `display_order` FROM `".$wpdb->prefix."hms_testimonials` ORDER BY `display_order` DESC LIMIT 1");
 
 		if (!$is_spam) {
@@ -437,37 +438,36 @@ function hms_testimonials_form_submission() {
 
 			$id = $wpdb->insert_id;
 
+			if ($field_count > 0) {
+				foreach($fields as $f) {
 
-		}
-
-		$e_message = '';
-		if ($field_count > 0) {
-			foreach($fields as $f) {
-
-				if (isset($_POST['hms_testimonials_cf'][$f->id]) && !$is_spam) {
-					$wpdb->insert($wpdb->prefix."hms_testimonials_cf_meta", 
-						array(
-							'testimonial_id' => $id, 'key_id' => $f->id, 'value' => trim($_POST['hms_testimonials_cf'][$f->id])
-						)
-					);
+					if (isset($_POST['hms_testimonials_cf'][$f->id]) && !$is_spam) {
+						$wpdb->insert($wpdb->prefix."hms_testimonials_cf_meta", 
+							array(
+								'testimonial_id' => $id, 'key_id' => $f->id, 'value' => trim($_POST['hms_testimonials_cf'][$f->id])
+							)
+						);
+					}
+					$e_message .= $f->name.': '.@$_POST['hms_testimonials_cf'][$f->id]."\r\n";
 				}
-				$e_message .= $f->name.': '.@$_POST['hms_testimonials_cf'][$f->id]."\r\n";
+
 			}
 
-		}
-
-		if ( isset($_POST['hms_testimonials_group']) && (is_numeric($_POST['hms_testimonials_group'])) && ($_POST['hms_testimonials_group'] != 0) ) {
-			$group = $wpdb->get_row(
-				$wpdb->prepare(
-					"SELECT * FROM `".$wpdb->prefix."hms_testimonials_groups` WHERE `id` = %d AND `blog_id` = %d",
-					$_POST['hms_testimonials_group'],
-					$blog_id
-				),ARRAY_A);
+			if ( isset($_POST['hms_testimonials_group']) && (is_numeric($_POST['hms_testimonials_group'])) && ($_POST['hms_testimonials_group'] != 0) ) {
+				$group = $wpdb->get_row(
+					$wpdb->prepare(
+						"SELECT * FROM `".$wpdb->prefix."hms_testimonials_groups` WHERE `id` = %d AND `blog_id` = %d",
+						$_POST['hms_testimonials_group'],
+						$blog_id
+					),ARRAY_A);
 
 
-			if ( !is_null($group) && count($group) > 0) {
-				$wpdb->insert($wpdb->prefix."hms_testimonials_group_meta", array('testimonial_id' => $id, 'group_id' => $group['id']));
+				if ( !is_null($group) && count($group) > 0) {
+					$wpdb->insert($wpdb->prefix."hms_testimonials_group_meta", array('testimonial_id' => $id, 'group_id' => $group['id']));
+				}
+
 			}
+
 
 		}
 
@@ -501,12 +501,14 @@ function hms_testimonials_form_submission() {
 		if (!$is_spam)
 			$message .= sprintf( __('View this testimonial at %1$s', 'hms-testimonials' ), admin_url('admin.php?page=hms-testimonials-view&id='.$id)) ."\r\n\r\n";
 
-		if ($token != '') {
+		if (isset($token) && $token != '') {
 			$link = plugins_url( 'autoapprove.php?token=' . $token . '&id=' . $id . '&key=' . md5($name . '/' . $created_date), __FILE__);
 			$message .= sprintf( __('Automatically approve this testimonial by going to %1$s', 'hms-testimonials'), $link) ."\r\n";
 		}
 
-		wp_mail(get_bloginfo('admin_email'), sprintf( __('New Visitor Testimonial Added to %1$s', 'hms-testimonials' ), get_bloginfo('name') ), $message);
+		if ( !$is_spam || ( $is_spam && $settings['akismet_spam_notifications'] == 1) ) {
+			wp_mail(get_bloginfo('admin_email'), sprintf( __('New Visitor Testimonial Added to %1$s', 'hms-testimonials' ), get_bloginfo('name') ), $message);
+		}
 		
 		$hms_testimonials_sc_form_success = true;
 		$_SESSION['hms_testimonials_submitted'] = 1;
@@ -525,7 +527,7 @@ function hms_testimonials_form_submission() {
 }
 
 function hms_testimonials_show( $atts ) {
-	global $wpdb, $blog_id;
+	global $wpdb, $blog_id, $hms_testimonial_footer_rating_aggregate;
 
 	$order_by = array('id', 'name','testimonial','url','testimonial_date','display_order', 'image', 'rand', 'random');
 
@@ -670,12 +672,27 @@ function hms_testimonials_show( $atts ) {
 		$ret .= '</div>';
 	}
 
+
+	$aggregate_location = $settings['rating_output_location'];
+	if ( !isset($aggregate_location) ) {
+		$aggregate_location = 'hidden';
+	}
+
+	if ( $aggregate_location == 'hidden' || $aggregate_location == 'top_of_first') {
+		$ret = HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false ) . $ret;
+	} elseif ( $aggregate_location == 'bottom_of_first') {
+		$ret .= HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false );
+	} elseif ( $aggregate_location == 'footer') {
+		$hms_testimonial_footer_rating_aggregate = HMS_Testimonials::injectAggregate( $get );
+	}
+
+
 	return $ret;
 
 }
 
 function hms_testimonials_show_rotating( $atts ) {
-	global $wpdb, $blog_id;
+	global $wpdb, $blog_id, $hms_testimonial_footer_rating_aggregate;
 
 	$order_by = array('id', 'name','testimonial','url','testimonial_date','display_order', 'image', 'rand', 'random');
 	$settings = get_option('hms_testimonials');
@@ -773,6 +790,19 @@ function hms_testimonials_show_rotating( $atts ) {
 	
 	$return .= '</div>';
 	$return .= '</div>';
+
+	$aggregate_location = $settings['rating_output_location'];
+	if ( !isset($aggregate_location) ) {
+		$aggregate_location = 'hidden';
+	}
+
+	if ( $aggregate_location == 'hidden' || $aggregate_location == 'top_of_first') {
+		$return = HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false ) . $return;
+	} elseif ( $aggregate_location == 'bottom_of_first') {
+		$return .= HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false );
+	} elseif ( $aggregate_location == 'footer') {
+		$hms_testimonial_footer_rating_aggregate = HMS_Testimonials::injectAggregate( $get );
+	}
  
 	return $return;
 }

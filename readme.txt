@@ -3,7 +3,7 @@ Contributors: kreitje
 Donate link: http://hitmyserver.com/wordpress-plugins-donations/
 Tags: testimonials, reviews, client reviews, what they are saying
 Requires at least: 3.5
-Tested up to: 3.9.1
+Tested up to: 4.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -75,6 +75,12 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.2.18 =
+* Tested up to 4.0.
+* Use new Akismet calls if available
+* Added the ability to turn off spam notifications if Akismet marks a testimonial as spam.
+* Added the ability to set the location of the aggregate reviews for use with shortcodes
 
 = 2.2.17 =
 * Added IDs to the fields on the add/edit testimonial screen inside the WordPress dashboard.

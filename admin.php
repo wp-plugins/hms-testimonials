@@ -66,6 +66,8 @@ class HMS_Testimonials {
 			'moderate_form_submission' => 1,
 			'user_role_can_select_group' => 0,
 			'nl2br_on_output' => 1,
+			'akismet_spam_notifications' => 1,
+			'rating_output_location' => 'hidden',
 		);
 
 		$this->options = array_merge($defaults, $current_options);
@@ -303,13 +305,27 @@ JS;
 	private function check_akismet() {
 
 		$use_akismet = false;
-		if ( function_exists( 'akismet_verify_key' ) && function_exists( 'akismet_get_key')) {
+
+		if ( class_exists('Akismet') ) {
+
+			$key = Akismet::get_api_key();
+			if ( $key !== false && $key != '') {
+				$response = Akismet::verify_key($key);
+				if ( $response == 'valid') {
+					return 1;
+				}
+			}
+
+			return 0;
+
+		} elseif ( function_exists( 'akismet_verify_key' ) && function_exists( 'akismet_get_key')) {
 			
 			$key = akismet_get_key();
 			if ($key !== false && $key != '') {
 				$response = akismet_verify_key($key);
-				if ($response == 'valid')
+				if ($response == 'valid') {
 					return 1;
+				}
 			}
 
 			return 0;
@@ -356,11 +372,14 @@ JS;
 			$options['form_show_rating'] = (isset($_POST['form_show_rating']) && $_POST['form_show_rating'] == '1') ? 1 : 0;
 			$options['nl2br_on_output'] = (isset($_POST['nl2br_on_output']) && $_POST['nl2br_on_output'] == '1') ? 1 : 0;
 
+			$options['akismet_spam_notifications'] = (isset($_POST['akismet_spam_notifications']) && $_POST['akismet_spam_notifications'] == '1') ? 1 : 0;
+
 			$options['redirect_url'] = (isset($_POST['redirect_url'])) ? strip_tags($_POST['redirect_url']) : '';
 
 			$options['wp_image_size'] = (isset($_POST['wp_image_size']) && in_array( $_POST['wp_image_size'], $image_sizes) ) ? $_POST['wp_image_size'] : $image_sizes[0];
 
 			$options['moderate_form_submission'] = (isset($_POST['moderate_form_submission']) && $_POST['moderate_form_submission'] == '1') ? 1 : 0;
+			$options['rating_output_location'] = (isset($_POST['rating_output_location']) ) ? $_POST['rating_output_location'] : 'hidden';
 
 			update_option('hms_testimonials', $options);
 			$this->options = $options;
@@ -383,9 +402,10 @@ JS;
 			.form-table th { width:auto !important;}
 			</style>
 
-			<div style="float:left;width:70%;">
+			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings'); ?>">
 
-				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-settings'); ?>">
+			<div style="float:left;width:70%;">
+				
 					<?php wp_nonce_field('hms-testimonials-settings'); ?>
 					
 					<h3>Settings</h3>
@@ -497,9 +517,19 @@ JS;
 								<th scope="row">16. Show 5 star rating on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_rating" value="1" <?php if ($this->options['form_show_rating']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
+							<tr>
+								<th scope="row">17. Output aggregate review microdata:<br />
+								<td><select name="rating_output_location">
+										<option value="hidden" <?php if ( $this->options['rating_output_location'] == 'hidden') { ?>selected="selected"<?php } ?> >Hidden</option>
+										<option value="top_of_first" <?php if ( $this->options['rating_output_location'] == 'top_of_first') { ?>selected="selected"<?php } ?>>Top of First Testimonial Section</option>
+										<option value="bottom_of_first" <?php if ( $this->options['rating_output_location'] == 'bottom_of_first') { ?>selected="selected"<?php } ?>>Bottom of Testimonial Section</option>
+										<option value="footer" <?php if ( $this->options['rating_output_location'] == 'footer') { ?>selected="selected"<?php } ?>>Footer</option>
+									</select>
+								</td>
+							</tr>
 
 							<tr>
-								<th scope="row">17. Redirect to this page after a visitor submits a testimonial.</th>
+								<th scope="row">18. Redirect to this page after a visitor submits a testimonial.</th>
 								<td><input type="text" name="redirect_url" value="<?php echo $this->options['redirect_url']; ?>" /></td>
 							</tr>
 
@@ -551,7 +581,6 @@ JS;
 
 					<p class="submit"><input type="submit" class="button-primary" name="save" value="Save Settings" /></p>
 
-				</form>
 			</div>
 			<div style="float:right;width:23%;">
 				<?php $check_akismet = $this->check_akismet(); ?>
@@ -563,10 +592,14 @@ JS;
 				<br /><br />
 				<p>When using the <strong>hms_testimonials_form</strong> shortcode, HMS Testimonials will automatically use Akismet 
 				if you have it installed and configured.</p>
-				<p>Items marked as spam will <span style="color:red;">NOT</span> be saved to your database. You will still receive an 
-					email with the contents to reconstruct the testimonial if you still want it in your database.</p>
+				<p>Items marked as spam will <span style="color:red;">NOT</span> be saved to your database.</p>
+				<br />
+				<input type="checkbox" name="akismet_spam_notifications" id="akismet_spam_notifications" value="1" <?php if ( $this->options['akismet_spam_notifications'] == 1) { ?>checked="checked"<?php } ?> /> <label for="akismet_spam_notifications">When a testimonial is marked as spam, 
+				send me a copy via email.</label>
 			</div>
 			<div style="clear:both;"></div>
+
+			</form>
 		</div>
 
 		<?php
@@ -3725,31 +3758,50 @@ JS;
 		<?php
 	}
 
-	public static function injectAggregate() {
+	public static function injectAggregate($results, $hide_block = false) {
 		global $wpdb, $blog_id, $hms_shown_rating_aggregate;
 
 		if ( $hms_shown_rating_aggregate ) return true;
 
+		if ( count($results) < 1) return true;
 
-		$getAverage = $wpdb->get_row("SELECT AVG(rating) AS avg, COUNT(*) AS num_ratings FROM `".$wpdb->prefix."hms_testimonials` WHERE `blog_id` = ".(int)$blog_id ." AND `rating` != 0", ARRAY_A);
+		$ratings = 0;
+		$ratingsAvg = 0;
+
+		foreach($results as $result) {
+			
+			/** get row instead of get results **/
+			if ( !isset($result['id']) ) {
+				$ratings = 1;
+				$ratingsAvg = $result['rating'];
+				break;
+			}
+
+			if ( (int)$result['rating'] != 0) {
+				$ratings++;
+				$ratingsAvg += (int)$result['rating'];	
+			}
+
+		}
 
 		$hms_shown_rating_aggregate = true;
 
-		if ( $getAverage['num_ratings'] > 0 ) {
+		if ( $ratings > 0) {
 
-			$avg = round( $getAverage['avg'], 2);
-			$ratings = $getAverage['num_ratings'];
+			$avg = round( $ratingsAvg / $ratings, 2);
 
-			?>
-			<div style="display:none;" itemscope itemtype="http://data-vocabulary.org/Review-aggregate">
-    			<span itemprop="itemreviewed"><?php echo get_bloginfo('blogname') ?></span>
+			$output = '
+				<div style="' . ( ( $hide_block ) ? 'display:none;' : '' ) . '" itemscope itemtype="http://data-vocabulary.org/Review-aggregate">
+    			<span itemprop="itemreviewed">'. get_bloginfo('blogname') .'</span>
         		<span itemprop="rating" itemscope itemtype="http://data-vocabulary.org/Rating">
-      				<span itemprop="average"><?php echo $avg; ?></span> out of <span itemprop="best">5</span>
-      			</span> based on <span itemprop="votes"><?php echo $ratings; ?></span> ratings.
-    				<span itemprop="count"><?php echo $ratings; ?></span> user reviews.
-  			</div>    
-			<?php
+      				<span itemprop="average">' . $avg . '</span> out of <span itemprop="best">5</span>
+      			</span> based on <span itemprop="votes">' . $ratings . '</span> ratings.
+    				<span itemprop="count">' . $ratings . '</span> user reviews.
+  			</div>';
+			return $output;
 		}
+
+		return '';
 		
 	}
 
@@ -3761,11 +3813,9 @@ JS;
 	 **/
 
 	public static function template($template_id, $testimonial, $word_limit = 0, $char_limit = 0, $options = array()) {
-		global $wpdb, $blog_id, $hms_testimonials_is_js;
+		global $wpdb, $blog_id, $hms_testimonials_is_js, $hms_shown_rating_aggregate;
 		
-		if ( !isset($hms_testimonials_is_js) ) {
-			self::injectAggregate();
-		}
+		
 		/**
 		 * Purify the testimonial field
 		 **/

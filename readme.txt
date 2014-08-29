@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.19 =
+* Use create_function instead of a closure to support PHP 5.2+
+
 = 2.2.18 =
 * Tested up to 4.0.
 * Use new Akismet calls if available

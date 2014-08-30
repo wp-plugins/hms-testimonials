@@ -682,7 +682,7 @@ function hms_testimonials_show( $atts ) {
 		$ret = HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false ) . $ret;
 	} elseif ( $aggregate_location == 'bottom_of_first') {
 		$ret .= HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false );
-	} elseif ( $aggregate_location == 'footer') {
+	} elseif ( $aggregate_location == 'footer' && $hms_testimonial_footer_rating_aggregate == '') {
 		$hms_testimonial_footer_rating_aggregate = HMS_Testimonials::injectAggregate( $get );
 	}
 
@@ -800,7 +800,7 @@ function hms_testimonials_show_rotating( $atts ) {
 		$return = HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false ) . $return;
 	} elseif ( $aggregate_location == 'bottom_of_first') {
 		$return .= HMS_Testimonials::injectAggregate( $get, ( $aggregate_location == 'hidden' ) ? true : false );
-	} elseif ( $aggregate_location == 'footer') {
+	} elseif ( $aggregate_location == 'footer' && $hms_testimonial_footer_rating_aggregate == '') {
 		$hms_testimonial_footer_rating_aggregate = HMS_Testimonials::injectAggregate( $get );
 	}
  

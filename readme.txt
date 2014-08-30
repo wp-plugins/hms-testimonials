@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.20 =
+* Doesn't overwrite the footer aggregate review microdata
+
 = 2.2.19 =
 * Use create_function instead of a closure to support PHP 5.2+
 

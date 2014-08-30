@@ -3761,9 +3761,9 @@ JS;
 	public static function injectAggregate($results, $hide_block = false) {
 		global $wpdb, $blog_id, $hms_shown_rating_aggregate;
 
-		if ( $hms_shown_rating_aggregate ) return true;
+		if ( $hms_shown_rating_aggregate ) return '';
 
-		if ( count($results) < 1) return true;
+		if ( count($results) < 1) return '';
 
 		$ratings = 0;
 		$ratingsAvg = 0;

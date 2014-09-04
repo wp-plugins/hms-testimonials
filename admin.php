@@ -1402,6 +1402,8 @@ JS;
 				 **/
 				$config->set('Cache.DefinitionImpl', null);
 				$config->set('URI.AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$config->set('HTML.SafeIframe', true);
+				$config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
 				$purifier = new HTMLPurifier($config);
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));
@@ -1766,6 +1768,9 @@ JS;
 				 **/
 				$config->set('Cache.DefinitionImpl', null);
 				$config->set('URI.AllowedSchemes', array('http' => true, 'https' => true, 'mailto' => true, 'ftp' => true, 'nntp' => true, 'news' => true));
+				$config->set('HTML.SafeIframe', true);
+				$config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
+
 				$purifier = new HTMLPurifier($config);
 
 				$testimonial = $purifier->purify(trim($_POST['testimonial']));

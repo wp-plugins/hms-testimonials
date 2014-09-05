@@ -673,9 +673,11 @@ function hms_testimonials_show( $atts ) {
 	}
 
 
-	$aggregate_location = $settings['rating_output_location'];
-	if ( !isset($aggregate_location) ) {
+	
+	if ( !isset($settings['rating_output_location']) ) {
 		$aggregate_location = 'hidden';
+	} else {
+		$aggregate_location = $settings['rating_output_location'];
 	}
 
 	if ( $aggregate_location == 'hidden' || $aggregate_location == 'top_of_first') {
@@ -791,9 +793,10 @@ function hms_testimonials_show_rotating( $atts ) {
 	$return .= '</div>';
 	$return .= '</div>';
 
-	$aggregate_location = $settings['rating_output_location'];
-	if ( !isset($aggregate_location) ) {
+	if ( !isset($settings['rating_output_location']) ) {
 		$aggregate_location = 'hidden';
+	} else {
+		$aggregate_location = $settings['rating_output_location'];
 	}
 
 	if ( $aggregate_location == 'hidden' || $aggregate_location == 'top_of_first') {

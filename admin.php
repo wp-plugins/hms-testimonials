@@ -3773,20 +3773,19 @@ JS;
 		$ratings = 0;
 		$ratingsAvg = 0;
 
-		foreach($results as $result) {
-			
-			/** get row instead of get results **/
-			if ( !isset($result['id']) ) {
-				$ratings = 1;
-				$ratingsAvg = $result['rating'];
-				break;
-			}
+		if ( !isset($results['id'])) {
 
-			if ( (int)$result['rating'] != 0) {
-				$ratings++;
-				$ratingsAvg += (int)$result['rating'];	
-			}
+			foreach($results as $result) {
+				
+				if ( (int)$result['rating'] != 0) {
+					$ratings++;
+					$ratingsAvg += (int)$result['rating'];	
+				}
 
+			}
+		} elseif ( $results['rating'] > 0) {
+			$ratings = 1;
+			$ratingsAvg = $results['rating'];
 		}
 
 		$hms_shown_rating_aggregate = true;

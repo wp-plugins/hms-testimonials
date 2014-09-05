@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.22 =
+* Fixed illegal offset message
+
 = 2.2.21 =
 * Allow YouTube/Vimeo iframes in HTMLPurifier.
 

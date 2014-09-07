@@ -68,6 +68,7 @@ class HMS_Testimonials {
 			'nl2br_on_output' => 1,
 			'akismet_spam_notifications' => 1,
 			'rating_output_location' => 'hidden',
+			'remove_url_protocol' => 0,
 		);
 
 		$this->options = array_merge($defaults, $current_options);
@@ -348,6 +349,7 @@ JS;
 			
 			$options['show_active_links'] = (isset($_POST['show_active_links']) && $_POST['show_active_links'] == '1') ? 1 : 0;
 			$options['active_links_nofollow'] = (isset($_POST['active_links_nofollow']) && $_POST['active_links_nofollow'] == '1') ? 1 : 0;
+			$options['remove_url_protocol'] = (isset($_POST['remove_url_protocol']) && $_POST['remove_url_protocol'] == '1') ? 1 : 0;
 
 			$options['use_recaptcha'] = (isset($_POST['use_recaptcha']) && $_POST['use_recaptcha'] == '1') ? 1 : 0;
 			$options['recaptcha_privatekey'] = (isset($_POST['recaptcha_privatekey'])) ? strip_tags($_POST['recaptcha_privatekey']) : '';
@@ -422,7 +424,12 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">3. Add a &lt;br /&gt; for line breaks?</th>
+								<th scope="row">3. Automatically Remove http:// or https:// from the beginning of the URL?</th>
+								<td><input type="checkbox" name="remove_url_protocol" value="1" <?php if ($this->options['remove_url_protocol']==1) echo ' checked="checked"'; ?> /></td>
+							</tr>
+
+							<tr>
+								<th scope="row">4. Add a &lt;br /&gt; for line breaks?</th>
 								<td><input type="checkbox" name="nl2br_on_output" value="1" <?php if ($this->options['nl2br_on_output']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
@@ -433,7 +440,7 @@ JS;
 								<td colspan="2"><strong style="font-size:15px;">Adding an image to your testimonials? Set the dimensions here.</strong></td>
 							</tr>
 							<tr>
-								<th scope="row">4. Width of the image</th>
+								<th scope="row">5. Width of the image</th>
 								<td><input type="text" name="image_width" value="<?php echo $this->options['image_width']; ?>" size="3" /> 
 									<select name="image_unit">
 										<option value="px" <?php if ($this->options['image_unit'] == 'px') echo 'selected="selected"'; ?>>px</option>
@@ -442,11 +449,11 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">5. Height of the image</th>
+								<th scope="row">6. Height of the image</th>
 								<td><input type="text" name="image_height" value="<?php echo $this->options['image_height']; ?>" size="3" /></td>
 							</tr>
 							<tr>
-								<th scope="row">6. WordPress Image Size</th>
+								<th scope="row">7. WordPress Image Size</th>
 								<td><select name="wp_image_size">
 										<?php foreach($image_sizes as $name): ?>
 											<option value="<?php echo $name; ?>" <?php if ($name == $this->options['wp_image_size']) echo ' selected="selected"'; ?>><?php echo $name; ?></option>
@@ -455,11 +462,11 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">7. Date format</th>
+								<th scope="row">8. Date format</th>
 								<td><input type="text" name="date_format" value="<?php echo $this->options['date_format']; ?>" size="10" /> <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help'); ?>#date_format" target="_blank">Read More</a></td>
 							</tr>
 							<tr>
-								<th scope="row">8. Use the following as a container for the testimonial text</th>
+								<th scope="row">9. Use the following as a container for the testimonial text</th>
 								<td><select name="testimonial_container">
 										<option value="div" <?php if ($this->options['testimonial_container'] == 'div') echo ' selected="selected"'; ?>>Div</option>
 										<option value="blockquote" <?php if ($this->options['testimonial_container'] == 'blockquote') echo ' selected="selected"'; ?>>Blockquote</option>
@@ -474,19 +481,19 @@ JS;
 								</td>
 							</tr>
 							<tr>
-								<th scope="row">9. "Read More" link</th>
+								<th scope="row">10. "Read More" link</th>
 								<td><input type="text" name="readmore_link" value="<?php echo $this->options['readmore_link']; ?>" /></td>
 							</tr>
 							<tr>
-								<th scope="row">10. "Read More" text</th>
+								<th scope="row">11. "Read More" text</th>
 								<td><input type="text" name="readmore_text" value="<?php echo $this->options['readmore_text']; ?>" size="10" /></td>
 							</tr>
 							<tr>
-								<th scope="row">11. <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help&active=7#append-testimonial-id'); ?>">Append the testimonial ID to the default "Read More" link?</a></th>
+								<th scope="row">12. <a href="<?php echo admin_url('admin.php?page=hms-testimonials-help&active=7#append-testimonial-id'); ?>">Append the testimonial ID to the default "Read More" link?</a></th>
 								<td><input type="checkbox" name="readmore_append_testimonial_id" value="1" <?php if ($this->options['readmore_append_testimonial_id']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">12. Allow visitors to submit a testimonial once every x minutes. If set to 0, there is no limit.</th>
+								<th scope="row">13. Allow visitors to submit a testimonial once every x minutes. If set to 0, there is no limit.</th>
 								<td><input type="text" name="flood_limit" value="<?php echo $this->options['flood_limit']; ?>" size="10" /></td>
 							</tr>
 
@@ -495,7 +502,7 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">13. Require approval of user submitted testimonials</th>
+								<th scope="row">14. Require approval of user submitted testimonials</th>
 								<td><input type="checkbox" name="moderate_form_submission" value="1" <?php if ($this->options['moderate_form_submission']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
@@ -504,21 +511,21 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">14. Show website field on the hms_testimonials_form?</th>
+								<th scope="row">15. Show website field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_url" value="1" <?php if ($this->options['form_show_url']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">15. Show image upload field on the hms_testimonials_form?</th>
+								<th scope="row">16. Show image upload field on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_upload" value="1" <?php if ($this->options['form_show_upload']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 
 							<tr>
-								<th scope="row">16. Show 5 star rating on the hms_testimonials_form?</th>
+								<th scope="row">17. Show 5 star rating on the hms_testimonials_form?</th>
 								<td><input type="checkbox" name="form_show_rating" value="1" <?php if ($this->options['form_show_rating']==1) echo ' checked="checked"'; ?> /></td>
 							</tr>
 							<tr>
-								<th scope="row">17. Output aggregate review microdata:<br />
+								<th scope="row">18. Output aggregate review microdata:<br />
 								<td><select name="rating_output_location">
 										<option value="hidden" <?php if ( $this->options['rating_output_location'] == 'hidden') { ?>selected="selected"<?php } ?> >Hidden</option>
 										<option value="top_of_first" <?php if ( $this->options['rating_output_location'] == 'top_of_first') { ?>selected="selected"<?php } ?>>Top of First Testimonial Section</option>
@@ -529,7 +536,7 @@ JS;
 							</tr>
 
 							<tr>
-								<th scope="row">18. Redirect to this page after a visitor submits a testimonial.</th>
+								<th scope="row">19. Redirect to this page after a visitor submits a testimonial.</th>
 								<td><input type="text" name="redirect_url" value="<?php echo $this->options['redirect_url']; ?>" /></td>
 							</tr>
 
@@ -3962,15 +3969,24 @@ JS;
 						else
 							$href = $testimonial['url'];
 
+
+						$display_url = $testimonial['url'];
+						if ( HMS_Testimonials::getInstance()->options['remove_url_protocol'] == 1) {
+							$display_url = preg_replace( '/^https?:\/\//', '', $display_url );
+						}
+
 						if (HMS_Testimonials::getInstance()->options['show_active_links'] == 1) {
 							$nofollow = '';
 
-							if (HMS_Testimonials::getInstance()->options['active_links_nofollow'] == 1)
+							if (HMS_Testimonials::getInstance()->options['active_links_nofollow'] == 1) {
 								$nofollow = 'rel="nofollow"';
+							}
 
-							$url = '<a '.$nofollow.' href="'.$href.'" target="_blank">'.$href.'</a>';
+
+							$url = '<a '.$nofollow.' href="'.$href.'" target="_blank">'.$display_url.'</a>';
 						} else {
-							$url = $href;
+
+							$url = $display_url;
 						}
 
 					}

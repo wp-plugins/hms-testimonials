@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.23 =
+* Added a setting that will strip http:// and https:// from the part of the URL a visitor would see.
+
 = 2.2.22 =
 * Fixed illegal offset message
 

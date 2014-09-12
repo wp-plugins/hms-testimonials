@@ -2512,7 +2512,8 @@ JS;
 				</h3>
 				
 				<div style="clear:both;"> </div>
-				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$get_group['id'].'&noheader=1'); ?>">
+				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-sortsave&group='.$get_group['id'].'&noheader=1'); ?>" id="sort-update">
+					<input type="hidden" name="type" value="group" />
 					<?php wp_nonce_field('hms-testimonials-edit-group'); ?>
 				<table class="wp-list-table widefat" id="sortable">
 					<thead>
@@ -2561,10 +2562,10 @@ JS;
 								}
 								?>
 								<tr>
-									<td valign="top"><input type="checkbox" name="testimonial[]" value="<?php echo $t['id']; ?>" <?php if (in_array($t['id'], $in_group)) echo ' checked="checked"'; ?> /></td>
+									<td valign="top"><input type="checkbox" name="sort[]" value="<?php echo $t['id']; ?>" <?php if (in_array($t['id'], $in_group)) echo ' checked="checked"'; ?> /></td>
 									<td class="row-id" valign="top"><a href="<?php echo admin_url('admin.php?page=hms-testimonials-view&id='.$t['id']); ?>"><?php echo $t['id']; ?></a></td>
 									<td class="row-name" valign="top"><?php echo nl2br($t['name']); ?></td>
-									<td class="row-testimonial" valign="top"><?php echo substr(nl2br($t['testimonial']),0,100).'...' ?></td>
+									<td class="row-testimonial" valign="top"><?php echo substr(nl2br( strip_tags($t['testimonial']) ),0,100).'...' ?></td>
 									<td class="row-url"><?php echo $t['url']; ?></td>
 									<td class="row-readmore"><?php echo $t['readmore']; ?></td>
 									<td class="row-testimonial_date"><?php if ($t['testimonial_date'] != '0000-00-00 00:00:00') echo date($this->options['date_format'], strtotime($t['testimonial_date'])); else echo 'Not Set'; ?></td>

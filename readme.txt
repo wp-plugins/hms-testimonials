@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.24 =
+* Fixed an issue where the display order for groups was not saving properly.
+
 = 2.2.23 =
 * Added a setting that will strip http:// and https:// from the part of the URL a visitor would see.
 

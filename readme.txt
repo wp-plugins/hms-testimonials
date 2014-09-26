@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.26 =
+* Don't use the image width/height settings in the admin
+
 = 2.2.25 =
 * Fixed an issue where the add group button was being hidden
 

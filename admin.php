@@ -1501,8 +1501,7 @@ JS;
 
 			<style type="text/css">
 				.testimonial-image {
-					height: <?php echo $this->options['image_height']; ?>px;
-					width: <?php echo $this->options['image_width']; ?>px;
+					max-height: 150px;
 				}
 			</style>
 
@@ -1925,8 +1924,7 @@ JS;
 
 				<style type="text/css">
 				.testimonial-image {
-					height: <?php echo $this->options['image_height']; ?>px;
-					width: <?php echo $this->options['image_width']; ?>px;
+					max-height: 150px;
 				}
 				</style>
 				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-view&id='.$get_testimonial['id']); ?>" accept-charset="UTF-8">
@@ -3744,7 +3742,7 @@ JS;
 						alert('Your file was not attached. Please select an image instead.');
 						return false;
 					} else {
-						jQuery('.image-container').html('<img src="' + attachment.url + '" style="height:100px;width:100px;" />');
+						jQuery('.image-container').html('<img src="' + attachment.url + '" class="testimonial-image" />');
 						jQuery('#attachment_id').val(attachment.id);
 
 						

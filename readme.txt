@@ -76,6 +76,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.25 =
+* Fixed an issue where the add group button was being hidden
+
 = 2.2.24 =
 * Fixed an issue where the display order for groups was not saving properly.
 

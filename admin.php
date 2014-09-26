@@ -2342,8 +2342,8 @@ JS;
 												?>
 												<tr>
 													<td valign="top"><input type="checkbox" name="testimonial[]" value="<?php echo $t['id']; ?>" /></td>
-													<td valign="top"><?php echo nl2br($t['name']); ?></td>
-													<td valign="top"><?php echo substr(nl2br($t['testimonial']),0,100).'...' ?></td>
+													<td valign="top"><?php echo nl2br(strip_tags($t['name'])); ?></td>
+													<td valign="top"><?php echo substr(nl2br(strip_tags($t['testimonial'])),0,100).'...' ?></td>
 												</tr>
 												<?php
 											}
@@ -2564,7 +2564,7 @@ JS;
 								<tr>
 									<td valign="top"><input type="checkbox" name="sort[]" value="<?php echo $t['id']; ?>" <?php if (in_array($t['id'], $in_group)) echo ' checked="checked"'; ?> /></td>
 									<td class="row-id" valign="top"><a href="<?php echo admin_url('admin.php?page=hms-testimonials-view&id='.$t['id']); ?>"><?php echo $t['id']; ?></a></td>
-									<td class="row-name" valign="top"><?php echo nl2br($t['name']); ?></td>
+									<td class="row-name" valign="top"><?php echo nl2br(strip_tags($t['name'])); ?></td>
 									<td class="row-testimonial" valign="top"><?php echo substr(nl2br( strip_tags($t['testimonial']) ),0,100).'...' ?></td>
 									<td class="row-url"><?php echo $t['url']; ?></td>
 									<td class="row-readmore"><?php echo $t['readmore']; ?></td>

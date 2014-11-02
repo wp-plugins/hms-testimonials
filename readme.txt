@@ -76,6 +76,11 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 
 == Changelog ==
 
+= 2.2.27 =
+* Fix adding testimonials on group view page
+* Fix sorting testimonials on group view page
+* Added the ability to edit a group name
+
 = 2.2.26 =
 * Don't use the image width/height settings in the admin
 

@@ -137,6 +137,7 @@ class HMS_Testimonials {
 			add_submenu_page('hms-testimonials', 'Groups', 'Groups', $this->user_role, 'hms-testimonials-groups', array($this, 'groups_page'));
 
 			add_submenu_page(null, 'Add New Group', '&nbsp;&nbsp;Add New', $this->user_role, 'hms-testimonials-addnewgroup', array($this, 'groups_new_page'));
+			add_submenu_page(null, 'Edit Group', '&nbsp;&nbsp;Add New', $this->user_role, 'hms-testimonials-editgroup', array($this, 'groups_edit_page'));
 			add_submenu_page(null, 'Ajax Save', 'Ajax Save', $this->user_role, 'hms-testimonials-sortsave', array($this, 'ajax_sort_save'));
 			add_submenu_page(null, 'View Group', 'View Group', $this->user_role, 'hms-testimonials-viewgroup', array($this, 'groups_view_page'));
 
@@ -2235,6 +2236,7 @@ JS;
 								<td><?php echo $g['testimonials']; ?></td>
 								<td>[hms_testimonials group="<?php echo $g['id']; ?>"]</td>
 								<td>
+									<a href="<?php echo admin_url('admin.php?page=hms-testimonials-editgroup&id='.$g['id']); ?>">Edit</a> | 
 									<a href="<?php echo admin_url('admin.php?page=hms-testimonials-deletegroup&groupid='.$g['id']); ?>" onclick="if (!confirm('Are you sure you want to delete <?php echo $g['name']; ?>?')) return false;">Delete</a>
 								</td>
 							</tr>
@@ -2361,6 +2363,77 @@ JS;
 		echo $this->load_sortable();
 	}
 
+	public function groups_edit_page() {
+
+		$group_id = (isset($_GET['id'])) ? (int)$_GET['id'] : 0;
+
+		$get_group = $this->wpdb->get_row("SELECT * FROM `".$this->wpdb->prefix."hms_testimonials_groups` WHERE `id` = ".$group_id." AND `blog_id` = ".(int)$this->blog_id, ARRAY_A);
+
+		if (count($get_group) < 1) {
+
+			die('We could not find the group you are looking for.');
+			
+		}
+
+
+		if (isset($_POST) && (count($_POST)>0)) {
+			check_admin_referer('hms-testimonials-edit-group');
+
+			$_POST = stripslashes_deep($_POST);
+
+			if ( isset($_POST['name']) && trim($_POST['name']) != '') {
+
+				$_POST['name'] = str_replace('"', '', $_POST['name']);
+				$_POST['name'] = str_replace("'", '', $_POST['name']);
+
+				$name = trim($_POST['name']);
+
+				$this->wpdb->update($this->wpdb->prefix."hms_testimonials_groups", 
+						array('name' => $name),
+						array('id' => $get_group['id']));
+
+			}
+
+			die(header('Location: '.admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$_GET['id'].'&message='.urlencode('This group has been updated.'))));
+		}
+
+
+		
+
+		?>
+		<div class="wrap">
+			<div id="icon-users" class="icon32"></div>
+			<h2>Edit <?php echo $get_group['name']; ?></h2>
+			<br />
+
+			
+
+			<br />
+			<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-editgroup&id=' . $get_group['id'] . '&noheader=true'); ?>">
+				<?php wp_nonce_field('hms-testimonials-edit-group'); ?>
+				<div id="poststuff">
+				<div id="post-body" class="metabox-holder columns-1">
+					<div id="post-body-content">
+
+						<div class="stuffbox">
+							<h3><label for="name">Name</label></h3>
+							<div class="inside">
+								<input type="text" id="name" name="name" value="<?php echo $get_group['name']; ?>" />
+								<p>Example: &nbsp;&nbsp;Government Testimonials</p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				</div>
+				<input type="submit" name="save" value="Save Group" class="button-primary" />
+			</form>
+		</div>
+		<?php
+
+		echo $this->load_sortable();
+	}
+
 	public function groups_view_page() {
 
 		$group_id = (isset($_GET['id'])) ? (int)$_GET['id'] : 0;
@@ -2406,7 +2479,7 @@ JS;
 									WHERE t.blog_id = ".(int)$this->blog_id." ORDER BY t.display_order ASC", ARRAY_A);
 
 			foreach($get_testimonials as $t) {
-				$t_ids[] = $t['id'];
+				$t_ids[] = (int)$t['id'];
 
 				if (!in_array($t['id'], $in_group)) {
 					$testimonials[$total_in_group] = $t;
@@ -2442,14 +2515,18 @@ JS;
 			$before_output .= '</style>';
 		}
 
+
 		if (isset($_POST) && (count($_POST)>0)) {
 			check_admin_referer('hms-testimonials-edit-group');
 
 			$counter = 1;
 
-			if (isset($_POST['testimonial']) && is_array($_POST['testimonial']) && (count($_POST['testimonial'])>0)) {
+			$added = 0;
+			$removed = 0;
+
+			if (isset($_POST['sort']) && is_array($_POST['sort']) && (count($_POST['sort'])>0)) {
 				$raw_group = $in_group;
-				foreach($_POST['testimonial'] as $i => $v) {
+				foreach($_POST['sort'] as $i => $v) {
 
 					/* 
 						check to see if testimonial exists
@@ -2458,8 +2535,10 @@ JS;
 					*/
 							
 					if (!in_array($v, $t_ids)) continue;
+
 					if (!in_array($v, $raw_group)) {
 						$this->wpdb->insert($this->wpdb->prefix."hms_testimonials_group_meta", array('testimonial_id' => $v, 'group_id' => $get_group['id'], 'display_order' => $counter));
+						$added++;
 					} else {
 
 						/** update group display order **/
@@ -2478,9 +2557,10 @@ JS;
 				/* delete removed items */
 				foreach($in_group as $tid) {
 					$this->wpdb->query("DELETE FROM `".$this->wpdb->prefix."hms_testimonials_group_meta` WHERE `group_id` = ".$get_group['id'].' AND `testimonial_id` = '.(int)$tid);
+					$removed++;
 				}
 			}
-			
+
 
 			die(header('Location: '.admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$_GET['id'].'&message='.urlencode('This group has been updated.'))));
 		}
@@ -2494,7 +2574,10 @@ JS;
 				echo '<h2>No Group found.</h2>';
 			else {
 				?>
-				<h2>Group: <?php echo $get_group['name']; ?> <a href="<?php echo admin_url('admin.php?page=hms-testimonials-addnewgroup'); ?>" class="add-new-h2">Add New Group</a></h2>
+				<h2>Group: <?php echo $get_group['name']; ?> 
+					<a href="<?php echo admin_url('admin.php?page=hms-testimonials-editgroup&id=' . $get_group['id']); ?>" class="add-new-h2">Edit Group</a> 
+					<a href="<?php echo admin_url('admin.php?page=hms-testimonials-addnewgroup'); ?>" class="add-new-h2">Add New Group</a>
+				</h2>
 				
 				<?php if (isset($_GET['message'])) { ?>
 					<div id="message" class="updated"><p><?php echo strip_tags($_GET['message']); ?></p></div>
@@ -2510,7 +2593,7 @@ JS;
 				</h3>
 				
 				<div style="clear:both;"> </div>
-				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-sortsave&group='.$get_group['id'].'&noheader=1'); ?>" id="sort-update">
+				<form method="post" action="<?php echo admin_url('admin.php?page=hms-testimonials-viewgroup&id='.$get_group['id'].'&noheader=1'); ?>" id="sort-update">
 					<input type="hidden" name="type" value="group" />
 					<?php wp_nonce_field('hms-testimonials-edit-group'); ?>
 				<table class="wp-list-table widefat" id="sortable">
@@ -2604,6 +2687,14 @@ JS;
 					});
 				</script>
 				<script type="text/javascript">
+
+					var fixHelper = function(e, ui) {
+						ui.children().each(function() {
+							jQuery(this).width(jQuery(this).width());
+						});
+						return ui;
+					};
+
 					jQuery(document).ready(function() {
 						jQuery('.hms-testimonial-row-selector').click(function() {
 							jQuery('.hms-testimonial-row-selector').each(function() {
@@ -2616,15 +2707,26 @@ JS;
 
 							var data = jQuery('#frm-display-rows').serialize();
 							jQuery.post('<?php echo admin_url('admin.php?page=hms-testimonials-templates-ajax-save-display-rows&noheader=true&'); ?>', data, function(response) {
-								console.log(response);
+								
 							});
 						});
+
+						jQuery("#sortable tbody").sortable({
+							helper: fixHelper,
+							update: function(event, ui) {
+								//var data = jQuery.extend({type: 'group'}, jQuery("#sort-update").serialize() );
+								var data = jQuery("#sort-update").serialize();
+									data['type'] = 'group';
+								var url = '<?php echo admin_url('admin.php?page=hms-testimonials-sortsave&noheader=true&group=' . $get_group['id'] ); ?>';
+
+								jQuery.post( url, data);
+							}
+						});
 					});
+
 				</script>
 
-				<?php
-				echo $this->load_sortable();
-				
+			<?php				
 			}
 			?></div>
 		<?php

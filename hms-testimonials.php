@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: HMS Testimonials
-Plugin URI: http://hitmyserver.com
+Plugin URI: http://hitmyserver.net
 Description: Displays your customer testimonials or rotate them. Utilize templates to customize how they are shown.
-Version: 2.2.27
+Version: 2.2.28
 Author: HitMyServer LLC
-Author URI: http://hitmyserver.com
+Author URI: http://hitmyserver.net
 */
 
 

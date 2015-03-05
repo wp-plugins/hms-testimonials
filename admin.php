@@ -996,8 +996,8 @@ JS;
 
 			<p>This plugin allows you to add customer testimonials to your site in an easy to manage way. HMS Testimonials offers 3 shortcodes with multiple options and 2 widgets.</p>
 			<br />
-			<h4 align="center"><strong>Do you enjoy this plugin?</strong> <a style="color:red;" href="http://hitmyserver.com/wordpress-plugins-donations/" target="_blank">Consider sending us a donation to show your support!</a></h4>
-			<p align="center">Need general tech help? Checkout a new message board called <a style="color:red;" href="http://thetech.io" target="_blank">The Tech IO</a> sponsored by the plugin developer.</p>
+			<h4 align="center"><strong>Do you enjoy this plugin?</strong> <a style="color:red;" href="http://hitmyserver.net/wordpress-plugins-donations/" target="_blank">Consider sending us a donation to show your support!</a></h4>
+
 			<br /><br />
 
 			<div id="accordion">
@@ -1278,7 +1278,7 @@ JS;
 
 			<br /><br />
 			<div align="center">
-				<a href="http://hitmyserver.com" target="_blank"><img src="<?php echo plugin_dir_url(__FILE__); ?>images/logo.png" alt="HitMyServer LLC" /></a>
+				<a href="http://hitmyserver.net" target="_blank"><img src="<?php echo plugin_dir_url(__FILE__); ?>images/logo.png" alt="HitMyServer LLC" /></a>
 			</div>
 		</div>
 
@@ -1542,7 +1542,7 @@ JS;
 							<h3><label for="website">Website:</label></h3>
 							<div class="inside">
 								<input type="text" id="website" name="url" size="50" value="<?php echo @$_POST['url']; ?>" />
-								<p>Example: http://hitmyserver.com</p>
+								<p>Example: http://hitmyserver.net</p>
 							</div>
 						</div>
 
@@ -1603,7 +1603,7 @@ JS;
 								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo @$_POST['readmore']; ?>" />
 								<p>With the shortcodes and widgets you can limit the number of characters or words shown. When using this option there is a read more link added to the end of it. 
 									This setting allows you to change the link on an individual testimonial.</p>
-								<p>Example: http://hitmyserver.com/testimonial</p>
+								<p>Example: http://hitmyserver.net/testimonial</p>
 							</div>
 						</div>
 					</div>
@@ -1967,7 +1967,7 @@ JS;
 							<h3><label for="website">Website:</label></h3>
 							<div class="inside">
 								<input type="text" id="website" name="url" size="50" value="<?php echo (!isset($_POST['url']) ? $get_testimonial['url'] : $_POST['url']); ?>" />
-								<p>Example: http://hitmyserver.com</p>
+								<p>Example: http://hitmyserver.net</p>
 							</div>
 						</div>
 
@@ -2035,7 +2035,7 @@ JS;
 								<input type="text" id="readmore" name="readmore" size="50" value="<?php echo (!isset($_POST['readmore']) ? $get_testimonial['readmore'] : $_POST['readmore']); ?>" />
 								<p>With the shortcodes and widgets you can limit the number of characters or words shown. When using this option there is a read more link added to the end of it. 
 									This setting allows you to change the link on an individual testimonial.</p>
-								<p>Example: http://hitmyserver.com/testimonial</p>
+								<p>Example: http://hitmyserver.net/testimonial</p>
 							</div>
 						</div>
 

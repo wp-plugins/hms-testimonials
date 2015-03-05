@@ -1,6 +1,6 @@
 === Plugin Name ===
 Contributors: kreitje
-Donate link: http://hitmyserver.com/wordpress-plugins-donations/
+Donate link: http://hitmyserver.net/wordpress-plugins-donations/
 Tags: testimonials, reviews, client reviews, what they are saying
 Requires at least: 3.5
 Tested up to: 4.0
@@ -75,6 +75,9 @@ Go to Testimonials. Then click the ID of the testimonial. On the right hand side
 3. Sidebar demonstration
 
 == Changelog ==
+
+= 2.2.28 =
+* Changed a few outdated links
 
 = 2.2.27 =
 * Fix adding testimonials on group view page
